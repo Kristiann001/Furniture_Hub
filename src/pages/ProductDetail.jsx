@@ -1,60 +1,118 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { products, woodTypes, generateWhatsAppLink } from "../data/products";
+import { woodTypes, generateWhatsAppLink } from "../data/products";
+import { fetchProduct, fetchProducts } from "../firebase/products";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
 
-  // Find product by numeric id from the unified products array
-  const product = products.find((p) => p.id === parseInt(id, 10)) || products[0];
-
-  // Set default selected color when product changes
-  useEffect(() => {
-    if (product?.colors?.length > 0) {
-      setSelectedColor(product.colors[0].name);
-    }
+  const loadProduct = useCallback(async () => {
+    setLoading(true);
+    setError("");
     setCurrentImage(0);
-  }, [id, product]);
+    setQuantity(1);
+    try {
+      const data = await fetchProduct(id);
+      if (!data) {
+        setError("Product not found.");
+        setProduct(null);
+        return;
+      }
+      setProduct(data);
+      if (data.colors?.length > 0) setSelectedColor(data.colors[0].name);
 
-  useEffect(() => {
-    // Scroll to top on product change
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-    // Initialize scroll animations
-    const animatedElements = document.querySelectorAll(".animate-fade-up");
-    const observerOptions = { root: null, rootMargin: "0px", threshold: 0.1 };
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-    animatedElements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+      // Load related products (same category)
+      const all = await fetchProducts();
+      setRelatedProducts(
+        all.filter((p) => p.category === data.category && p.id !== data.id).slice(0, 4)
+      );
+    } catch {
+      setError("Failed to load product. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
+  useEffect(() => {
+    loadProduct();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [loadProduct]);
+
+  useEffect(() => {
+    const animatedElements = document.querySelectorAll(".animate-fade-up");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { root: null, rootMargin: "0px", threshold: 0.1 }
+    );
+    animatedElements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [product]);
+
   const handleQuantityChange = (newQuantity) => {
-    if (newQuantity >= 1 && newQuantity <= 10) {
-      setQuantity(newQuantity);
-    }
+    if (newQuantity >= 1 && newQuantity <= 10) setQuantity(newQuantity);
   };
 
   const handleWhatsAppOrder = () => {
-    const link = generateWhatsAppLink(product, quantity, selectedColor);
+    const link = product.whatsappLink || generateWhatsAppLink(product, quantity, selectedColor);
     window.open(link, "_blank");
   };
 
-  // Related products: same category, exclude current
-  const relatedProducts = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
+  // ─── Loading ────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="app">
+        <Header />
+        <section className="product-detail" style={{ paddingTop: "100px" }}>
+          <div className="container">
+            <div className="product-detail-grid">
+              <div style={{ background: "#f0f0f0", borderRadius: 12, minHeight: 400 }} />
+              <div>
+                <div style={{ background: "#f0f0f0", height: 24, width: "40%", borderRadius: 8, marginBottom: 12 }} />
+                <div style={{ background: "#f0f0f0", height: 36, width: "80%", borderRadius: 8, marginBottom: 16 }} />
+                <div style={{ background: "#f0f0f0", height: 28, width: "30%", borderRadius: 8 }} />
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </div>
+    );
+  }
+
+  // ─── Error / Not Found ────────────────────────────────────────────────
+  if (error || !product) {
+    return (
+      <div className="app">
+        <Header />
+        <section style={{ paddingTop: "120px", textAlign: "center", minHeight: "60vh" }}>
+          <h2>😕 {error || "Product not found"}</h2>
+          <button className="btn btn-primary" onClick={() => navigate("/products")} style={{ marginTop: "1rem" }}>
+            Back to Collections
+          </button>
+        </section>
+        <Footer />
+      </div>
+    );
+  }
+
+  const images = product.images?.length ? product.images : [product.image];
 
   return (
     <div className="app">
@@ -76,24 +134,26 @@ const ProductDetail = () => {
             {/* Product Gallery */}
             <div className="product-gallery">
               <div className="main-image">
-                <img src={product.images[currentImage]} alt={product.name} />
+                <img src={images[currentImage]} alt={product.name} />
               </div>
-              <div className="thumbnail-grid">
-                {product.images.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`thumbnail ${currentImage === index ? "active" : ""}`}
-                    onClick={() => setCurrentImage(index)}
-                  >
-                    <img src={image} alt={`View ${index + 1}`} />
-                  </div>
-                ))}
-              </div>
+              {images.length > 1 && (
+                <div className="thumbnail-grid">
+                  {images.map((image, index) => (
+                    <div
+                      key={index}
+                      className={`thumbnail ${currentImage === index ? "active" : ""}`}
+                      onClick={() => setCurrentImage(index)}
+                    >
+                      <img src={image} alt={`View ${index + 1}`} />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Info */}
             <div className="product-detail-info">
-              <div className="product-detail-category">{product.categoryName}</div>
+              <div className="product-detail-category">{product.categoryName || product.category}</div>
               <h1 className="product-detail-name">{product.name}</h1>
               <div className="product-detail-price">
                 {product.price}
@@ -105,21 +165,23 @@ const ProductDetail = () => {
               <p className="product-description">{product.description}</p>
 
               {/* Wood Type */}
-              <div className="product-options">
-                <div className="option-label">Wood / Material</div>
-                <div style={{
-                  display: "inline-block",
-                  padding: "8px 18px",
-                  background: "var(--color-off-white)",
-                  borderRadius: "var(--radius-full)",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: "var(--color-gray-700)",
-                  marginBottom: "var(--spacing-lg)"
-                }}>
-                  🪵 {woodTypes[product.woodType] || product.woodType}
+              {product.woodType && (
+                <div className="product-options">
+                  <div className="option-label">Wood / Material</div>
+                  <div style={{
+                    display: "inline-block",
+                    padding: "8px 18px",
+                    background: "var(--color-off-white)",
+                    borderRadius: "var(--radius-full)",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "var(--color-gray-700)",
+                    marginBottom: "var(--spacing-lg)",
+                  }}>
+                    🪵 {woodTypes[product.woodType] || product.woodType}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Color Options */}
               {product.colors?.length > 0 && (
@@ -149,9 +211,7 @@ const ProductDetail = () => {
                     className="quantity-btn"
                     onClick={() => handleQuantityChange(quantity - 1)}
                     disabled={quantity <= 1}
-                  >
-                    −
-                  </button>
+                  >−</button>
                   <input
                     type="number"
                     value={quantity}
@@ -165,9 +225,7 @@ const ProductDetail = () => {
                     className="quantity-btn"
                     onClick={() => handleQuantityChange(quantity + 1)}
                     disabled={quantity >= 10}
-                  >
-                    +
-                  </button>
+                  >+</button>
                 </div>
               </div>
 
@@ -179,9 +237,6 @@ const ProductDetail = () => {
                   onClick={handleWhatsAppOrder}
                 >
                   <span>💬</span> Order via WhatsApp
-                </button>
-                <button className="btn btn-secondary btn-large">
-                  ♡ Add to Wishlist
                 </button>
               </div>
 
@@ -198,11 +253,15 @@ const ProductDetail = () => {
               )}
 
               {/* Dimensions */}
-              {product.dimensions && Object.keys(product.dimensions).length > 0 && (
+              {product.dimensionSummary && (
                 <div className="product-dimensions">
                   <h3>Dimensions</h3>
                   <div className="dimensions-grid">
-                    {Object.entries(product.dimensions).map(([key, value]) => (
+                    <div className="dimension-item">
+                      <span className="dimension-label">Summary</span>
+                      <span className="dimension-value">{product.dimensionSummary}</span>
+                    </div>
+                    {product.dimensions && Object.entries(product.dimensions).map(([key, value]) => (
                       <div key={key} className="dimension-item">
                         <span className="dimension-label">{key}</span>
                         <span className="dimension-value">{value}</span>
@@ -223,22 +282,19 @@ const ProductDetail = () => {
             <div className="section-header">
               <div>
                 <h2 className="section-title">You May Also Like</h2>
-                <p className="section-subtitle">More from {product.categoryName}</p>
+                <p className="section-subtitle">More from {product.categoryName || product.category}</p>
               </div>
             </div>
             <div className="products-grid">
               {relatedProducts.map((rp, index) => (
-                <div
-                  key={rp.id}
-                  className={`product-card animate-fade-up animate-delay-${index}`}
-                >
+                <div key={rp.id} className={`product-card animate-fade-up animate-delay-${index}`}>
                   <Link to={`/product/${rp.id}`}>
                     <div className="product-image">
                       {rp.badge && <span className="product-badge">{rp.badge}</span>}
                       <img src={rp.image} alt={rp.name} />
                     </div>
                     <div className="product-info">
-                      <div className="product-category">{rp.categoryName}</div>
+                      <div className="product-category">{rp.categoryName || rp.category}</div>
                       <h3 className="product-name">{rp.name}</h3>
                       <div className="product-price">
                         {rp.price}

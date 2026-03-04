@@ -2507,6 +2507,27 @@ img {
   font-size: 13px;
 }
 
+/* Admin icon button in header */
+.admin-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.admin-icon-btn:hover {
+  background: var(--color-gray-100);
+  transform: scale(1.1);
+}
+
 .desktop-nav {
   display: flex;
   align-items: center;

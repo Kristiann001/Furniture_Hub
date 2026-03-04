@@ -1,20 +1,18 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-
+import { useAdmin } from "../context/AdminContext";
 
 const AdminLayout = () => {
-  const { currentUser, userProfile, logout } = useAuth();
+  const { adminLogout } = useAdmin();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login", { replace: true });
+  const handleLogout = () => {
+    adminLogout();
+    navigate("/", { replace: true });
   };
 
   const navItems = [
     { to: "/admin", label: "Dashboard", icon: "📊", end: true },
     { to: "/admin/products", label: "Products", icon: "🛋️" },
-    { to: "/admin/orders", label: "Orders", icon: "📦" },
   ];
 
   return (
@@ -63,12 +61,8 @@ const AdminLayout = () => {
           </div>
           <div className="admin-topbar-right">
             <div className="admin-user-pill">
-              <span className="admin-user-avatar">
-                {(userProfile?.name || currentUser?.displayName || "A")[0].toUpperCase()}
-              </span>
-              <span className="admin-user-name">
-                {userProfile?.name || currentUser?.displayName || "Admin"}
-              </span>
+              <span className="admin-user-avatar">O</span>
+              <span className="admin-user-name">Owner</span>
               <span className="admin-role-badge">Admin</span>
             </div>
           </div>

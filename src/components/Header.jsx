@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAdmin } from "../context/AdminContext";
+import AdminLoginModal from "./AdminLoginModal";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser, userRole, userProfile, logout } = useAuth();
+  const { isAdmin, adminLogout } = useAdmin();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.pageYOffset > 50);
@@ -31,10 +33,18 @@ const Header = () => {
     document.body.style.overflow = "";
   };
 
-  const handleLogout = async () => {
+  const handleAdminLogout = () => {
     closeMobileMenu();
-    await logout();
+    adminLogout();
     navigate("/", { replace: true });
+  };
+
+  const handleAdminIconClick = () => {
+    if (isAdmin) {
+      navigate("/admin");
+    } else {
+      setShowAdminModal(true);
+    }
   };
 
   const getActiveClass = (path) => {
@@ -43,30 +53,12 @@ const Header = () => {
     return "";
   };
 
-  const displayName =
-    userProfile?.name || currentUser?.displayName || currentUser?.email?.split("@")[0] || "";
-  const photoURL = userProfile?.photoURL || currentUser?.photoURL || "";
-
   const navLinks = [
     { to: "/", label: "Home" },
     { to: "/products", label: "Collections" },
     { to: "/about", label: "About" },
     { to: "/contact", label: "Contact" },
   ];
-
-  // Reusable avatar element
-  const AvatarCircle = ({ size = "sm" }) =>
-    photoURL ? (
-      <img
-        src={photoURL}
-        alt={displayName}
-        className={`user-avatar-photo user-avatar-photo--${size}`}
-      />
-    ) : (
-      <span className="user-avatar-circle">
-        {displayName[0]?.toUpperCase() || "U"}
-      </span>
-    );
 
   return (
     <>
@@ -87,36 +79,21 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Desktop Auth */}
+          {/* Desktop Actions */}
           <div className="header-actions">
-            {currentUser ? (
-              <div className="user-menu">
-                <div className="user-avatar-btn">
-                  <AvatarCircle />
-                  <span className="user-name-label">{displayName}</span>
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                    <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-                  </svg>
-                </div>
-                <div className="user-dropdown">
-                  <Link to="/profile" className="user-dropdown-item">
-                    👤 My Profile
-                  </Link>
-                  {userRole === "admin" && (
-                    <Link to="/admin" className="user-dropdown-item">
-                      ⚙️ Admin Panel
-                    </Link>
-                  )}
-                  <button className="user-dropdown-item user-dropdown-item--danger" onClick={handleLogout}>
-                    🚪 Logout
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <Link to="/login" className="btn btn-primary header-login-btn">
-                Sign In
-              </Link>
-            )}
+            {/* Admin icon button */}
+            <button
+              className="admin-icon-btn"
+              onClick={handleAdminIconClick}
+              title={isAdmin ? "Go to Admin Dashboard" : "Admin Login"}
+              aria-label="Admin access"
+            >
+              {isAdmin ? (
+                <span style={{ fontSize: "1.1rem" }}>⚙️</span>
+              ) : (
+                <span style={{ fontSize: "1.1rem" }}>🔐</span>
+              )}
+            </button>
 
             {/* Hamburger */}
             <button
@@ -153,19 +130,6 @@ const Header = () => {
           </button>
         </div>
 
-        {/* User pill inside drawer (when logged in) */}
-        {currentUser && (
-          <Link to="/profile" className="drawer-user-pill" onClick={closeMobileMenu}>
-            <AvatarCircle size="md" />
-            <div>
-              <div className="drawer-user-name">{displayName}</div>
-              <div className="drawer-user-role">
-                {userRole === "admin" ? "🏪 Owner" : "🛋️ Customer"}
-              </div>
-            </div>
-          </Link>
-        )}
-
         {/* Nav links */}
         <nav className="drawer-nav">
           {navLinks.map((l) => (
@@ -178,38 +142,38 @@ const Header = () => {
               {l.label}
             </Link>
           ))}
-
-          {currentUser && (
-            <Link to="/profile" className="drawer-nav-link" onClick={closeMobileMenu}>
-              👤 My Profile
-            </Link>
-          )}
-
-          {userRole === "admin" && (
-            <Link to="/admin" className="drawer-nav-link" onClick={closeMobileMenu}>
-              ⚙️ Admin Panel
-            </Link>
-          )}
         </nav>
 
         {/* Drawer Footer */}
         <div className="drawer-footer">
-          {currentUser ? (
-            <button className="btn btn-outline btn-full" onClick={handleLogout}>
-              Logout
-            </button>
-          ) : (
+          {isAdmin ? (
             <>
-              <Link to="/login" className="btn btn-primary btn-full" onClick={closeMobileMenu}>
-                Sign In
+              <Link
+                to="/admin"
+                className="btn btn-primary btn-full"
+                onClick={closeMobileMenu}
+              >
+                ⚙️ Admin Dashboard
               </Link>
-              <Link to="/signup" className="btn btn-secondary btn-full" onClick={closeMobileMenu}>
-                Create Account
-              </Link>
+              <button className="btn btn-outline btn-full" onClick={handleAdminLogout}>
+                🚪 Logout Admin
+              </button>
             </>
+          ) : (
+            <button
+              className="btn btn-secondary btn-full"
+              onClick={() => { closeMobileMenu(); setShowAdminModal(true); }}
+            >
+              🔐 Owner Login
+            </button>
           )}
         </div>
       </div>
+
+      {/* Admin Login Modal */}
+      {showAdminModal && (
+        <AdminLoginModal onClose={() => setShowAdminModal(false)} />
+      )}
     </>
   );
 };
