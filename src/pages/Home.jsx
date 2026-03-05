@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import Categories from '../components/Categories';
-import FeaturedProducts from '../components/FeaturedProducts';
 import Banner from '../components/Banner';
 import WhyUs from '../components/WhyUs';
 import WhatsAppCTA from '../components/WhatsAppCTA';
@@ -58,7 +57,6 @@ const Home = () => {
       <Header />
       <Hero />
       <Categories />
-      <FeaturedProducts />
       <Banner />
       <WhyUs />
       <WhatsAppCTA />
