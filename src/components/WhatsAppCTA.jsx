@@ -1,6 +1,6 @@
 const WhatsAppCTA = () => {
   const handleWhatsAppClick = () => {
-    const phone = '254700000000';
+    const phone = '254720515922'; // Replace with your WhatsApp number in international format (without +)
     const message = 'Hello Furniture Hub Kenya, I\'m interested in your furniture collection. Can you help me?';
     const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');

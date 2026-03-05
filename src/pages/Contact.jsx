@@ -12,7 +12,7 @@ import Footer from "../components/Footer";
 const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-const OWNER_EMAIL         = "originalkristiann@gmail.com";
+const OWNER_EMAIL         = "fredrick.simiyu99@gmail.com";
 
 const Contact = () => {
   const formRef = useRef(null);
@@ -241,7 +241,7 @@ const Contact = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    placeholder="+254 700 000 000"
+                    placeholder="+254 720515922"
                   />
                 </div>
 
