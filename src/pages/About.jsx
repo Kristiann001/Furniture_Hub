@@ -90,7 +90,7 @@ const About = () => {
           <div className="about-content">
             <div className="about-text">
               <h1 className="animate-fade-up">
-                Crafting Beautiful Spaces Since 2015
+                Crafting Beautiful Spaces Since 2025
               </h1>
               <p className="about-description animate-fade-up animate-delay-1">
                 Furniture Hub Kenya was founded with a simple vision: to bring
@@ -109,6 +109,33 @@ const About = () => {
                 src="https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=800"
                 alt="Furniture Hub Kenya showroom"
               />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Mission Section */}
+      <section className="mission-section">
+        <div className="container">
+          <div className="mission-content">
+            <div className="mission-image animate-fade-up">
+              <img
+                src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800"
+                alt="Our mission"
+              />
+            </div>
+            <div className="mission-text">
+              <h2 className="animate-fade-up">Our Mission</h2>
+              <p className="animate-fade-up animate-delay-1">
+                To transform every space into a beautiful, functional sanctuary 
+                by providing premium furniture that combines exceptional quality, 
+                timeless design, and outstanding value.
+              </p>
+              <p className="animate-fade-up animate-delay-2">
+                We strive to make world-class furniture accessible to every Kenyan 
+                home and business, delivered with unparalleled customer service and 
+                a commitment to lasting relationships.
+              </p>
             </div>
           </div>
         </div>
@@ -138,12 +165,12 @@ const About = () => {
         </div>
       </section>
 
-      {/* Our Values */}
+      {/* Why Choose Us / Our Values */}
       <section className="values-section">
         <div className="container">
           <div className="text-center">
-            <h2 className="section-title">Our Core Values</h2>
-            <p className="section-subtitle">What drives everything we do</p>
+            <h2 className="section-title">Why Choose Us</h2>
+            <p className="section-subtitle">What sets us apart from the rest</p>
           </div>
 
           <div className="values-grid">
@@ -219,6 +246,196 @@ const About = () => {
       </section>
 
       <Footer />
+
+      {/* Inline responsive styles for About page */}
+      <style>{`
+        /* Mission Section */
+        .mission-section {
+          padding: var(--spacing-4xl) 0;
+          background-color: var(--color-white);
+        }
+
+        .mission-content {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: var(--spacing-3xl);
+          align-items: center;
+        }
+
+        .mission-image {
+          border-radius: var(--radius-xl);
+          overflow: hidden;
+          box-shadow: var(--shadow-xl);
+        }
+
+        .mission-image img {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        .mission-text h2 {
+          font-size: clamp(28px, 4vw, 42px);
+          margin-bottom: var(--spacing-lg);
+          color: var(--color-black);
+        }
+
+        .mission-text p {
+          font-size: 18px;
+          line-height: 1.8;
+          color: var(--color-gray-600);
+          margin-bottom: var(--spacing-lg);
+        }
+
+        /* Mobile-first responsive adjustments */
+        @media (max-width: 992px) {
+          .about-hero {
+            padding: 100px 0 var(--spacing-3xl);
+          }
+
+          .about-content {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: var(--spacing-2xl);
+          }
+
+          .about-text {
+            order: 2;
+          }
+
+          .about-text h1 {
+            font-size: clamp(24px, 5vw, 36px);
+          }
+
+          .about-description {
+            font-size: 16px;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+          }
+
+          .about-image {
+            order: 1;
+            max-width: 500px;
+            margin: 0 auto;
+          }
+
+          .mission-section {
+            padding: var(--spacing-3xl) 0;
+          }
+
+          .mission-content {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-2xl);
+          }
+
+          .mission-image {
+            order: 1;
+            max-width: 500px;
+            margin: 0 auto;
+          }
+
+          .mission-text {
+            order: 2;
+            text-align: center;
+          }
+
+          .mission-text h2 {
+            font-size: clamp(24px, 4vw, 32px);
+          }
+
+          .mission-text p {
+            font-size: 16px;
+          }
+
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-xl);
+          }
+
+          .values-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+          }
+
+          .team-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+          }
+
+          .team-section,
+          .values-section {
+            padding: var(--spacing-3xl) 0;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .about-hero {
+            padding: 80px 0 var(--spacing-2xl);
+          }
+
+          .about-description {
+            font-size: 15px;
+            line-height: 1.7;
+          }
+
+          .mission-section {
+            padding: var(--spacing-2xl) 0;
+          }
+
+          .mission-text p {
+            font-size: 15px;
+            line-height: 1.7;
+          }
+
+          .stats-grid {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+          }
+
+          .stat-number {
+            font-size: clamp(36px, 10vw, 48px);
+          }
+
+          .values-grid {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+          }
+
+          .value-card {
+            padding: var(--spacing-lg);
+          }
+
+          .team-grid {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+          }
+
+          .member-image {
+            width: 150px;
+            height: 150px;
+          }
+
+          .team-section,
+          .values-section {
+            padding: var(--spacing-2xl) 0;
+          }
+
+          .banner-inner {
+            grid-template-columns: 1fr;
+            text-align: center;
+          }
+
+          .banner-content {
+            padding: var(--spacing-xl);
+            padding-top: 0;
+          }
+
+          .banner-image {
+            height: 250px;
+          }
+        }
+      `}</style>
     </div>
   );
 };

@@ -177,7 +177,7 @@ const ProductModal = ({ product, onSave, onClose, saving = false }) => {
                 className="form-input"
                 value={form.whatsappLink}
                 onChange={handleChange}
-                placeholder="https://wa.me/254700000000?text=I'm interested in this product"
+                placeholder="https://wa.me/254720515922?text=I'm interested in this product"
               />
               <p className="form-hint">
                 Customers tap this to order via WhatsApp. Format: https://wa.me/[phone]?text=[message]
