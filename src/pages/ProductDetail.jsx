@@ -12,7 +12,6 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
 
@@ -20,7 +19,6 @@ const ProductDetail = () => {
     setLoading(true);
     setError("");
     setCurrentImage(0);
-    setQuantity(1);
     try {
       const data = await fetchProduct(id);
       if (!data) {
@@ -65,12 +63,8 @@ const ProductDetail = () => {
     return () => observer.disconnect();
   }, [product]);
 
-  const handleQuantityChange = (newQuantity) => {
-    if (newQuantity >= 1 && newQuantity <= 10) setQuantity(newQuantity);
-  };
-
   const handleWhatsAppOrder = () => {
-    const link = product.whatsappLink || generateWhatsAppLink(product, quantity, selectedColor);
+    const link = product.whatsappLink || generateWhatsAppLink(product, 1, selectedColor);
     window.open(link, "_blank");
   };
 
@@ -203,31 +197,6 @@ const ProductDetail = () => {
                 </div>
               )}
 
-              {/* Quantity Selector */}
-              <div className="product-options">
-                <div className="option-label">Quantity</div>
-                <div className="quantity-selector">
-                  <button
-                    className="quantity-btn"
-                    onClick={() => handleQuantityChange(quantity - 1)}
-                    disabled={quantity <= 1}
-                  >−</button>
-                  <input
-                    type="number"
-                    value={quantity}
-                    onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                    min="1"
-                    max="10"
-                    className="quantity-input"
-                    id="quantity-input"
-                  />
-                  <button
-                    className="quantity-btn"
-                    onClick={() => handleQuantityChange(quantity + 1)}
-                    disabled={quantity >= 10}
-                  >+</button>
-                </div>
-              </div>
 
               {/* Action Buttons */}
               <div className="product-actions">

@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAdmin } from "../context/AdminContext";
+import OwnerProfileModal from "../components/OwnerProfileModal";
 
 const AdminLayout = () => {
-  const { adminLogout } = useAdmin();
+  const { adminLogout, ownerName } = useAdmin();
   const navigate = useNavigate();
+  const [showProfile, setShowProfile] = useState(false);
 
   const handleLogout = () => {
     adminLogout();
@@ -14,6 +17,9 @@ const AdminLayout = () => {
     { to: "/admin", label: "Dashboard", icon: "📊", end: true },
     { to: "/admin/products", label: "Products", icon: "🛋️" },
   ];
+
+  // First letter of owner name for the avatar
+  const avatarLetter = ownerName.charAt(0).toUpperCase();
 
   return (
     <div className="admin-layout">
@@ -41,10 +47,6 @@ const AdminLayout = () => {
         </nav>
 
         <div className="admin-sidebar-footer">
-          <NavLink to="/" className="admin-nav-link" target="_blank">
-            <span className="admin-nav-icon">🌐</span>
-            View Store
-          </NavLink>
           <button className="admin-nav-link admin-logout-btn" onClick={handleLogout}>
             <span className="admin-nav-icon">🚪</span>
             Logout
@@ -60,11 +62,43 @@ const AdminLayout = () => {
             <span className="admin-page-label">Admin Panel</span>
           </div>
           <div className="admin-topbar-right">
-            <div className="admin-user-pill">
-              <span className="admin-user-avatar">O</span>
-              <span className="admin-user-name">Owner</span>
-              <span className="admin-role-badge">Admin</span>
-            </div>
+            {/* Clickable owner pill → opens profile modal */}
+            <button
+              className="admin-user-pill"
+              onClick={() => setShowProfile(true)}
+              title="Edit profile"
+              style={{
+                cursor: "pointer",
+                background: "none",
+                border: "none",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <span className="admin-user-avatar">{avatarLetter}</span>
+              <span className="admin-user-name" style={{ fontWeight: 600 }}>{ownerName}</span>
+            </button>
+            
+            {/* Mobile Logout Button (Visible only on small screens via CSS) */}
+            <button 
+              className="admin-topbar-logout" 
+              onClick={handleLogout}
+              title="Logout"
+              style={{
+                background: "none",
+                border: "none",
+                fontSize: "1.2rem",
+                cursor: "pointer",
+                padding: "4px",
+                display: "flex",
+                alignItems: "center",
+                color: "#ff8080"
+              }}
+            >
+              🚪
+            </button>
           </div>
         </header>
 
@@ -73,6 +107,9 @@ const AdminLayout = () => {
           <Outlet />
         </main>
       </div>
+
+      {/* Owner Profile Modal */}
+      {showProfile && <OwnerProfileModal onClose={() => setShowProfile(false)} />}
     </div>
   );
 };

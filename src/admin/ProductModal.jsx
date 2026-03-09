@@ -16,6 +16,8 @@ const emptyForm = {
   description: "",
   dimensionSummary: "",
   whatsappLink: "",
+  images: ["", "", "", ""], // [0] is main, [1..3] are extra
+  colors: [{ name: "Default", hex: "#8b7355" }],
 };
 
 const ProductModal = ({ product, onSave, onClose, saving = false }) => {
@@ -41,21 +43,52 @@ const ProductModal = ({ product, onSave, onClose, saving = false }) => {
     });
   };
 
+  const handleImageChange = (index, value) => {
+    setForm((prev) => {
+      const newImages = [...prev.images];
+      newImages[index] = value;
+      return { ...prev, images: newImages, image: newImages[0] }; // Sync legacy .image to the first image
+    });
+  };
+
+  const handleColorChange = (index, field, value) => {
+    setForm((prev) => {
+      const newColors = [...prev.colors];
+      newColors[index] = { ...newColors[index], [field]: value };
+      return { ...prev, colors: newColors };
+    });
+  };
+
+  const addColor = () => {
+    setForm((prev) => ({ ...prev, colors: [...prev.colors, { name: "", hex: "#000000" }] }));
+  };
+
+  const removeColor = (index) => {
+    setForm((prev) => ({ ...prev, colors: prev.colors.filter((_, i) => i !== index) }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
     if (!form.name.trim()) return setError("Product name is required.");
     if (!form.price.trim()) return setError("Price is required.");
-    if (!form.image.trim()) return setError("Image URL is required.");
+    if (!form.images[0]?.trim() && !form.image?.trim()) return setError("Main Image URL is required.");
 
-    const images = [form.image, form.image, form.image, form.image];
-    const colors = product?.colors || [{ name: "Default", hex: "#8b7355" }];
+    // Filter out empty images
+    const activeImages = form.images.filter((url) => url.trim().length > 0);
+    // Legacy mapping (in case it's used elsewhere)
+    const image = activeImages[0] || form.image;
+
+    const activeColors = form.colors.filter((c) => c.name.trim().length > 0);
+    if (activeColors.length === 0) {
+      activeColors.push({ name: "Default", hex: "#8b7355" });
+    }
+
     const features = product?.features || [];
     const dimensions = product?.dimensions || {};
 
-    onSave({ ...form, images, colors, features, dimensions });
+    onSave({ ...form, image, images: activeImages, colors: activeColors, features, dimensions });
   };
-
   return (
     <div className="admin-modal-backdrop" onClick={onClose}>
       <div
@@ -156,17 +189,59 @@ const ProductModal = ({ product, onSave, onClose, saving = false }) => {
               />
             </div>
 
-            {/* Image URL */}
-            <div className="form-group form-group-full">
-              <label className="form-label">Image URL *</label>
+            {/* Images block */}
+            <div className="form-group form-group-full" style={{ marginBottom: "1rem" }}>
+              <label className="form-label">Main Image URL *</label>
               <input
-                name="image"
                 className="form-input"
-                value={form.image}
-                onChange={handleChange}
-                placeholder="https://images.unsplash.com/..."
+                value={form.images[0] || ""}
+                onChange={(e) => handleImageChange(0, e.target.value)}
+                placeholder="https://images.unsplash.com/... (Main photo)"
                 required
               />
+            </div>
+            <div className="form-group form-group-full" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              {[1, 2, 3].map((i) => (
+                <div key={i}>
+                  <label className="form-label" style={{ fontSize: "0.8rem", color: "#666" }}>Extra Image {i} (Optional)</label>
+                  <input
+                    className="form-input"
+                    value={form.images[i] || ""}
+                    onChange={(e) => handleImageChange(i, e.target.value)}
+                    placeholder="URL..."
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Colors block */}
+            <div className="form-group form-group-full" style={{ background: "#f9fafb", padding: "1rem", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                <label className="form-label" style={{ margin: 0 }}>Color Options</label>
+                <button type="button" onClick={addColor} style={{ fontSize: "0.8rem", background: "none", border: "none", color: "var(--color-primary)", cursor: "pointer", fontWeight: 600 }}>
+                  + Add Color
+                </button>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                {form.colors.map((color, index) => (
+                  <div key={index} style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                    <input
+                      type="color"
+                      value={color.hex}
+                      onChange={(e) => handleColorChange(index, "hex", e.target.value)}
+                      style={{ width: "36px", height: "36px", border: "none", cursor: "pointer", padding: 0 }}
+                    />
+                    <input
+                      className="form-input"
+                      value={color.name}
+                      onChange={(e) => handleColorChange(index, "name", e.target.value)}
+                      placeholder="Color Name (e.g. Navy Blue)"
+                      style={{ flex: 1, padding: "6px 12px" }}
+                    />
+                    <button type="button" onClick={() => removeColor(index)} style={{ padding: "0.4rem", color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}>✕</button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* WhatsApp Order Link */}
