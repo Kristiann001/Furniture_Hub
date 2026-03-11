@@ -252,7 +252,11 @@ const About = () => {
         /* Mission Section */
         .mission-section {
           padding: var(--spacing-4xl) 0;
-          background-color: var(--color-white);
+          background-color: #ffffff; /* Explicit white for light mode */
+        }
+        
+        [data-theme="dark"] .mission-section {
+          background-color: #1c1a17;
         }
 
         .mission-content {
@@ -277,15 +281,19 @@ const About = () => {
         .mission-text h2 {
           font-size: clamp(28px, 4vw, 42px);
           margin-bottom: var(--spacing-lg);
-          color: var(--color-black);
+          color: #111111; /* Explicit black for light mode */
         }
 
         .mission-text p {
           font-size: 18px;
           line-height: 1.8;
-          color: var(--color-gray-600);
+          color: #525252; /* Explicit dark gray for light mode */
           margin-bottom: var(--spacing-lg);
         }
+        
+        /* Dark mode overrides for Mission section inline styles */
+        [data-theme="dark"] .mission-text h2 { color: #f5f0e8; }
+        [data-theme="dark"] .mission-text p { color: #c0b0a0; }
 
         /* Mobile-first responsive adjustments */
         @media (max-width: 992px) {

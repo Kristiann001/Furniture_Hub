@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAdmin } from "../context/AdminContext";
+import { useTheme } from "../context/ThemeContext";
 import AdminLoginModal from "./AdminLoginModal";
 
 const Header = () => {
@@ -10,6 +11,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAdmin, adminLogout } = useAdmin();
+  const { isDark, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.pageYOffset > 50);
@@ -81,6 +83,16 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="header-actions">
+            {/* Dark Mode Toggle */}
+            <button
+              className="admin-icon-btn theme-toggle-btn"
+              onClick={toggleTheme}
+              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              aria-label="Toggle dark mode"
+            >
+              <span style={{ fontSize: "1.1rem" }}>{isDark ? "☀️" : "🌙"}</span>
+            </button>
+
             {/* Admin icon button */}
             <button
               className="admin-icon-btn"

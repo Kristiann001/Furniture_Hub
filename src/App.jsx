@@ -8,11 +8,17 @@ import Products from "./pages/Products";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ProductDetail from "./pages/ProductDetail";
+import Help from "./pages/Help";
 
 // Admin pages
 import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
 import AdminProducts from "./admin/AdminProducts";
+import SoldItems from "./admin/SoldItems";
+
+// Theme + Floating Button
+import { ThemeProvider } from "./context/ThemeContext";
+import FloatingWhatsApp from "./components/FloatingWhatsApp";
 
 import "./assets/css/style.css";
 
@@ -24,15 +30,17 @@ const AdminRoute = ({ children }) => {
 
 function App() {
   return (
-    <AdminProvider>
-      <Router>
+    <ThemeProvider>
+      <AdminProvider>
+        <Router>
         <Routes>
           {/* ── Public / Customer routes ── */}
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/" element={<><Home /><FloatingWhatsApp /></>} />
+          <Route path="/products" element={<><Products /><FloatingWhatsApp /></>} />
+          <Route path="/about" element={<><About /><FloatingWhatsApp /></>} />
+          <Route path="/contact" element={<><Contact /><FloatingWhatsApp /></>} />
+          <Route path="/help" element={<><Help /><FloatingWhatsApp /></>} />
+          <Route path="/product/:id" element={<><ProductDetail /><FloatingWhatsApp /></>} />
 
           {/* ── Admin routes (password-protected) ── */}
           <Route
@@ -45,6 +53,7 @@ function App() {
           >
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
+            <Route path="sold-items" element={<SoldItems />} />
           </Route>
 
           {/* ── Fallback ── */}
@@ -52,6 +61,7 @@ function App() {
         </Routes>
       </Router>
     </AdminProvider>
+  </ThemeProvider>
   );
 }
 

@@ -17,7 +17,7 @@ const Products = () => {
   // Load products from Firestore once
   useEffect(() => {
     fetchProducts()
-      .then(setAllProducts)
+      .then((data) => setAllProducts(data.filter((p) => p.status !== "sold")))
       .catch(() => setError("Failed to load products. Please try again later."))
       .finally(() => setLoading(false));
   }, []);

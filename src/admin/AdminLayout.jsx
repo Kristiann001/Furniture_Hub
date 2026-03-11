@@ -16,6 +16,7 @@ const AdminLayout = () => {
   const navItems = [
     { to: "/admin", label: "Dashboard", icon: "📊", end: true },
     { to: "/admin/products", label: "Products", icon: "🛋️" },
+    { to: "/admin/sold-items", label: "Sold Items", icon: "💰" },
   ];
 
   // First letter of owner name for the avatar
@@ -62,44 +63,30 @@ const AdminLayout = () => {
             <span className="admin-page-label">Admin Panel</span>
           </div>
           <div className="admin-topbar-right">
-            {/* Clickable owner pill → opens profile modal */}
+            {/* Profile button — opens owner modal */}
             <button
-              className="admin-user-pill"
+              className="admin-profile-btn"
               onClick={() => setShowProfile(true)}
               title="Edit profile"
-              style={{
-                cursor: "pointer",
-                background: "none",
-                border: "none",
-                padding: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
             >
-              <span className="admin-user-avatar">{avatarLetter}</span>
-              <span className="admin-user-name" style={{ fontWeight: 600 }}>{ownerName}</span>
+              <span className="admin-avatar-circle">{avatarLetter}</span>
+              <div className="admin-profile-info">
+                <span className="admin-profile-name">{ownerName}</span>
+                <span className="admin-profile-role">Admin</span>
+              </div>
+              <span className="admin-profile-caret">✏️</span>
             </button>
             
-            {/* Mobile Logout Button (Visible only on small screens via CSS) */}
-            <button 
-              className="admin-topbar-logout" 
+            {/* Mobile Logout Pill (shown only on small screens via CSS) */}
+            <button
+              className="admin-topbar-logout"
               onClick={handleLogout}
               title="Logout"
-              style={{
-                background: "none",
-                border: "none",
-                fontSize: "1.2rem",
-                cursor: "pointer",
-                padding: "4px",
-                display: "flex",
-                alignItems: "center",
-                color: "#ff8080"
-              }}
             >
-              🚪
+              🚪 <span className="logout-label">Logout</span>
             </button>
           </div>
+
         </header>
 
         {/* Page content */}

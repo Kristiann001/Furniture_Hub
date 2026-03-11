@@ -59,6 +59,72 @@ export const fetchProductsByCategory = async (category) => {
 };
 
 /**
+ * Fetch sold products.
+ * @returns {Promise<Array>}
+ */
+export const fetchSoldProducts = async () => {
+  try {
+    const q = query(
+      collection(db, PRODUCTS_COLLECTION),
+      where("status", "==", "sold")
+    );
+    const snapshot = await getDocs(q);
+    const products = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    // Sort locally to avoid requiring a composite index in Firestore
+    products.sort((a, b) => {
+      const timeA = a.soldAt?.toMillis ? a.soldAt.toMillis() : 0;
+      const timeB = b.soldAt?.toMillis ? b.soldAt.toMillis() : 0;
+      return timeB - timeA;
+    });
+    return products;
+  } catch (error) {
+    console.error("Error fetching sold products:", error);
+    throw error;
+  }
+};
+
+/**
+ * Mark a sold product as available again.
+ * @param {string} id - Firestore document ID
+ */
+export const markProductAsAvailable = async (id) => {
+  try {
+    const ref = doc(db, PRODUCTS_COLLECTION, id);
+    await updateDoc(ref, { 
+      status: "available",
+      soldAt: null,
+      soldNote: null,
+      badge: "",
+      updatedAt: serverTimestamp() 
+    });
+  } catch (error) {
+    console.error("Error marking product as available:", error);
+    throw error;
+  }
+};
+
+/**
+ * Mark a product as sold.
+ * @param {string} id - Firestore document ID
+ * @param {string} note - Optional note about the sale
+ */
+export const markProductAsSold = async (id, note = "") => {
+  try {
+    const ref = doc(db, PRODUCTS_COLLECTION, id);
+    await updateDoc(ref, { 
+      status: "sold",
+      badge: "Sold Out",
+      soldAt: serverTimestamp(),
+      soldNote: note,
+      updatedAt: serverTimestamp() 
+    });
+  } catch (error) {
+    console.error("Error marking product as sold:", error);
+    throw error;
+  }
+};
+
+/**
  * Fetch a single product by its Firestore document ID.
  * @param {string} id - Firestore document ID
  * @returns {Promise<Object|null>}

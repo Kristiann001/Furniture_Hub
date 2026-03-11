@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { productCategories, woodTypes } from "../data/products";
-import { fetchProducts, addProduct, updateProduct, deleteProduct } from "../firebase/products";
+import { fetchProducts, addProduct, updateProduct, deleteProduct, markProductAsSold } from "../firebase/products";
 import ProductModal from "./ProductModal";
 
 const AdminProducts = () => {
@@ -11,6 +11,8 @@ const AdminProducts = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [soldConfirm, setSoldConfirm] = useState(null);
+  const [soldNote, setSoldNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,6 +32,7 @@ const AdminProducts = () => {
   }, []);
 
   const filtered = productList.filter((p) => {
+    if (p.status === "sold") return false;
     const matchesCat = filterCat === "all" || p.category === filterCat;
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
@@ -74,6 +77,30 @@ const AdminProducts = () => {
       setDeleteConfirm(null);
     } catch (err) {
       setError("Failed to delete product. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Mark as Sold ──────────────────────────────────────────────
+  const handleMarkSold = async () => {
+    if (!soldConfirm) return;
+    setSaving(true);
+    setError("");
+    try {
+      await markProductAsSold(soldConfirm.id, soldNote);
+      // Update local state to reflect the item is sold
+      setProductList((prev) =>
+        prev.map((p) =>
+          p.id === soldConfirm.id
+            ? { ...p, status: "sold", badge: "Sold Out" }
+            : p
+        )
+      );
+      setSoldConfirm(null);
+      setSoldNote("");
+    } catch (err) {
+      setError("Failed to mark product as sold. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -187,6 +214,16 @@ const AdminProducts = () => {
                   </td>
                   <td>
                     <div className="admin-action-btns">
+                      {p.status !== "sold" && (
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => setSoldConfirm(p)}
+                          title="Mark as Sold"
+                          style={{ padding: "4px 8px", fontSize: "14px", marginRight: "4px" }}
+                        >
+                          💰 Sold
+                        </button>
+                      )}
                       <button
                         className="admin-btn-edit"
                         onClick={() => openEdit(p)}
@@ -247,6 +284,40 @@ const AdminProducts = () => {
                 disabled={saving}
               >
                 {saving ? <span className="btn-spinner" /> : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sold confirmation */}
+      {soldConfirm && (
+        <div className="admin-modal-backdrop" onClick={() => { setSoldConfirm(null); setSoldNote(""); }}>
+          <div className="admin-modal admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Mark as Sold?</h3>
+            <p style={{ marginBottom: 16 }}>
+              You are marking <strong>{soldConfirm.name}</strong> as sold. It will be moved to the Sold Items page.
+            </p>
+            <div className="form-group" style={{ textAlign: "left" }}>
+              <label className="form-label">Sold Note (Optional)</label>
+              <textarea
+                className="form-input"
+                rows="2"
+                placeholder="e.g. Sold to John manually via WhatsApp..."
+                value={soldNote}
+                onChange={(e) => setSoldNote(e.target.value)}
+              />
+            </div>
+            <div className="admin-confirm-actions" style={{ marginTop: 24 }}>
+              <button className="btn btn-secondary" onClick={() => { setSoldConfirm(null); setSoldNote(""); }}>
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleMarkSold}
+                disabled={saving}
+              >
+                {saving ? <span className="btn-spinner" /> : "Confirm Sold"}
               </button>
             </div>
           </div>
