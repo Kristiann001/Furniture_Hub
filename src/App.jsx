@@ -15,6 +15,7 @@ import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
 import AdminProducts from "./admin/AdminProducts";
 import SoldItems from "./admin/SoldItems";
+import AdminReviews from "./admin/AdminReviews";
 
 // Theme + Floating Button
 import { ThemeProvider } from "./context/ThemeContext";
@@ -54,6 +55,7 @@ function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="sold-items" element={<SoldItems />} />
+            <Route path="reviews" element={<AdminReviews />} />
           </Route>
 
           {/* ── Fallback ── */}

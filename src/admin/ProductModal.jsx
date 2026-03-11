@@ -215,7 +215,7 @@ const ProductModal = ({ product, onSave, onClose, saving = false }) => {
             </div>
 
             {/* Colors block */}
-            <div className="form-group form-group-full" style={{ background: "#f9fafb", padding: "1rem", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
+            <div className="form-group form-group-full color-options-box">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
                 <label className="form-label" style={{ margin: 0 }}>Color Options</label>
                 <button type="button" onClick={addColor} style={{ fontSize: "0.8rem", background: "none", border: "none", color: "var(--color-primary)", cursor: "pointer", fontWeight: 600 }}>

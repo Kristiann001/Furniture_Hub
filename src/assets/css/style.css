@@ -6495,7 +6495,7 @@ body {
 [data-theme="dark"] .admin-table tbody tr {
   border-color: #2e2b22;
 }
-[data-theme="dark"] .admin-table tbody tr:hover {
+[data-theme="dark"] .admin-table tbody tr:hover td {
   background: #242118;
 }
 [data-theme="dark"] .admin-table td {
@@ -6516,6 +6516,8 @@ body {
 }
 [data-theme="dark"] .admin-empty-row {
   color: #a09080;
+  background-color: #1a1815 !important;
+  border-color: #2e2b22 !important;
 }
 
 /* Quick action cards */
@@ -6572,6 +6574,20 @@ body {
   background: #1e1b14;
   border-color: #2e2b22;
   color: #f0eae0;
+}
+[data-theme="dark"] .admin-modal::-webkit-scrollbar {
+  width: 8px;
+}
+[data-theme="dark"] .admin-modal::-webkit-scrollbar-track {
+  background: #1a1815;
+  border-radius: 4px;
+}
+[data-theme="dark"] .admin-modal::-webkit-scrollbar-thumb {
+  background: #3d3a30;
+  border-radius: 4px;
+}
+[data-theme="dark"] .admin-modal::-webkit-scrollbar-thumb:hover {
+  background: #524e41;
 }
 [data-theme="dark"] .admin-modal h3,
 [data-theme="dark"] .admin-modal p,
@@ -8076,8 +8092,221 @@ body {
 }
 
 [data-theme="dark"] .help-card h3 { color: #f5f0e8; }
+[data-theme="dark"] .help-card h3 { color: #f5f0e8; }
 [data-theme="dark"] .help-card p { color: #c0b0a0; }
 [data-theme="dark"] .help-card strong { color: #f5f0e8; }
+
+/* Product Modal Color Box */
+.color-options-box {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+[data-theme="dark"] .color-options-box {
+  background: #1a1815;
+  border-color: #2a2722;
+}
+
+/* ========================================================
+   TESTIMONIALS & REVIEWS SYSTEM
+   ======================================================== */
+.testimonials-section {
+  padding: 100px 0;
+  background: var(--color-white);
+  overflow: hidden;
+}
+
+.testimonials-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 56px;
+  gap: 16px;
+}
+
+.testimonials-grid {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding-bottom: 24px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+.testimonials-grid::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.testimonial-card {
+  min-width: 380px;
+  background: var(--color-off-white);
+  border: 1px solid var(--color-gray-100);
+  border-radius: 20px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  transition: transform var(--transition-fast);
+}
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.06);
+}
+
+.testimonial-stars {
+  margin-bottom: 16px;
+}
+.star {
+  font-size: 18px;
+  margin-right: 2px;
+}
+.star-filled { color: #f59e0b; }
+.star-empty { color: var(--color-gray-300); }
+
+.testimonial-comment {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-black);
+  margin-bottom: 24px;
+  flex: 1;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-gray-200);
+}
+.author-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-black);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+}
+.author-info {
+  display: flex;
+  flex-direction: column;
+}
+.author-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-black);
+}
+.author-badge {
+  font-size: 11px;
+  color: #10b981;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Empty / Loading Stats */
+.reviews-empty, .reviews-loading {
+  text-align: center;
+  padding: 80px 0;
+  background: var(--color-off-white);
+  border-radius: 20px;
+  border: 1px dashed var(--color-gray-300);
+}
+.reviews-empty-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+/* Review Modal */
+.review-modal { 
+  max-width: 500px;
+  padding: 40px;
+  position: relative;
+}
+.review-modal-sub {
+  color: var(--color-gray-500);
+  margin-bottom: 32px;
+}
+.star-rating-input {
+  display: flex;
+  gap: 8px;
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+.star-btn {
+  background: none;
+  border: none;
+  color: var(--color-gray-300);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s;
+}
+.star-btn.active { color: #f59e0b; }
+.star-btn:hover { transform: scale(1.1); }
+
+.review-success {
+  max-width: 400px;
+  text-align: center;
+  padding: 48px 32px;
+}
+.success-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  animation: bounce 2s infinite;
+}
+
+/* Admin Reviews Table Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.status-pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+.status-approved { background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; }
+.status-rejected { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+@media (max-width: 600px) {
+  .testimonials-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .testimonial-card { min-width: 300px; }
+  .review-modal { padding: 32px 24px; }
+}
+
+/* Dark Mode */
+[data-theme="dark"] .testimonials-section { background: #141210; }
+[data-theme="dark"] .testimonials-header h2 { color: #f5f0e8; }
+[data-theme="dark"] .testimonial-card {
+  background: #1a1815;
+  border-color: #2a2722;
+}
+[data-theme="dark"] .testimonial-comment { color: #f5f0e8; }
+[data-theme="dark"] .testimonial-author { border-top-color: #2a2722; }
+[data-theme="dark"] .author-name { color: #f5f0e8; }
+[data-theme="dark"] .author-avatar { background: #f5f0e8; color: #141210; }
+[data-theme="dark"] .star-empty { color: #3d3a30; }
+[data-theme="dark"] .reviews-empty, [data-theme="dark"] .reviews-loading {
+  background: #1a1815;
+  border-color: #3d3a30;
+}
+[data-theme="dark"] .review-modal-sub { color: #a09080; }
+[data-theme="dark"] .star-btn:not(.active) { color: #3d3a30; }
+
+[data-theme="dark"] .status-pending { background: rgba(217, 119, 6, 0.15); border-color: rgba(217, 119, 6, 0.3); color: #fcd34d; }
+[data-theme="dark"] .status-approved { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+[data-theme="dark"] .status-rejected { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
 
 
 
