@@ -29,22 +29,24 @@ export const addReview = async (reviewData) => {
   }
 };
 
-// Fetch only approved reviews for the home page
-export const getApprovedReviews = async () => {
+// Fetch only pinned reviews for the home page (max 3)
+// Note: We fetch all and filter client-side to avoid needing a composite index
+export const getPinnedReviews = async () => {
   try {
     const q = query(
       collection(db, REVIEWS_COLLECTION),
-      where('status', '==', 'approved'),
       orderBy('createdAt', 'desc')
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
+    const allReviews = querySnapshot.docs.map(d => ({
+      id: d.id,
+      ...d.data()
     }));
+    // Filter pinned client-side to avoid composite index requirement
+    return allReviews.filter(r => r.status === 'pinned');
   } catch (error) {
-    console.error("Error fetching approved reviews: ", error);
-    throw error;
+    console.error("Error fetching pinned reviews: ", error);
+    return [];
   }
 };
 
@@ -56,17 +58,17 @@ export const getAllReviews = async () => {
       orderBy('createdAt', 'desc')
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
+    return querySnapshot.docs.map(d => ({
+      id: d.id,
+      ...d.data()
     }));
   } catch (error) {
     console.error("Error fetching all reviews: ", error);
-    throw error;
+    return [];
   }
 };
 
-// Admin approves or rejects a review
+// Admin pins or rejects/unpins a review
 export const updateReviewStatus = async (id, status) => {
   try {
     const reviewRef = doc(db, REVIEWS_COLLECTION, id);

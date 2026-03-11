@@ -20,8 +20,18 @@ const AdminReviews = () => {
     fetchReviews();
   }, []);
 
-  const handleApprove = async (id) => {
-    const res = await updateReviewStatus(id, "approved");
+  const handlePin = async (id) => {
+    const pinnedCount = reviews.filter(r => r.status === "pinned").length;
+    if (pinnedCount >= 3) {
+      alert("You can only pin up to 3 reviews to the homepage. Please unpin one first.");
+      return;
+    }
+    const res = await updateReviewStatus(id, "pinned");
+    if (res.success) fetchReviews();
+  };
+
+  const handleUnpin = async (id) => {
+    const res = await updateReviewStatus(id, "pending");
     if (res.success) fetchReviews();
   };
 
@@ -51,7 +61,7 @@ const AdminReviews = () => {
       <div className="admin-header">
         <div>
           <h1 className="admin-title">Customer Reviews</h1>
-          <p className="admin-subtitle">Moderate and publish testimonials for the homepage.</p>
+          <p className="admin-subtitle">Moderate and pin your top 3 testimonials for the homepage.</p>
         </div>
       </div>
 
@@ -69,7 +79,7 @@ const AdminReviews = () => {
           <tbody>
             {reviews.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center py-8 text-gray-500">
+                <td colSpan="5" className="text-center py-8 text-gray-500 admin-empty-row">
                   No reviews submitted yet.
                 </td>
               </tr>
@@ -95,32 +105,32 @@ const AdminReviews = () => {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center gap-2">
-                      {rev.status !== "approved" && (
+                      {rev.status !== "pinned" && rev.status !== "rejected" && (
                         <button
-                          onClick={() => handleApprove(rev.id)}
-                          className="action-btn text-green-600 hover:text-green-800"
-                          title="Approve"
+                          onClick={() => handlePin(rev.id)}
+                          className="action-btn text-blue-600 hover:text-blue-800"
+                          title="Pin to Homepage"
                         >
-                          ✓
+                          📌
                         </button>
                       )}
-                      {rev.status !== "rejected" && rev.status !== "pending" && (
+                      {rev.status === "pinned" && (
+                        <button
+                          onClick={() => handleUnpin(rev.id)}
+                          className="action-btn text-gray-500 hover:text-gray-700"
+                          title="Unpin from Homepage"
+                        >
+                          ✖
+                        </button>
+                      )}
+                      {rev.status !== "rejected" && (
                          <button
                          onClick={() => handleReject(rev.id)}
                          className="action-btn text-yellow-600 hover:text-yellow-800"
-                         title="Reject (Hide from public)"
+                         title="Hide (Reject)"
                        >
                          ✗
                        </button>
-                      )}
-                      {rev.status === "pending" && (
-                        <button
-                          onClick={() => handleReject(rev.id)}
-                          className="action-btn text-yellow-600 hover:text-yellow-800"
-                          title="Reject"
-                        >
-                          ✗
-                        </button>
                       )}
                       
                       <button

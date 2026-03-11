@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
-import { getApprovedReviews } from '../firebase/reviews';
+import { getPinnedReviews } from '../firebase/reviews';
 import ReviewModal from './ReviewModal';
 
 const Testimonials = () => {
-  const [reviews, setReviews] = [useState([])][0];
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
+  const fetchReviews = async () => {
+    try {
+      const pinnedReviews = await getPinnedReviews();
+      setReviews(pinnedReviews.slice(0, 3));
+    } catch (err) {
+      console.error("Failed to load reviews:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const approvedReviews = await getApprovedReviews();
-        // Just show the top 8 recent reviews to keep the UI clean
-        setReviews(approvedReviews.slice(0, 8));
-      } catch (err) {
-        console.error("Failed to load reviews:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchReviews();
-  }, [showModal]); // Re-fetch when modal closes in case their review was auto-approved/etc, though it defaults to pending.
+  }, []);
 
   const renderStars = (rating) => {
     return Array(5).fill('★').map((star, i) => (
@@ -86,7 +86,7 @@ const Testimonials = () => {
         )}
       </div>
 
-      {showModal && <ReviewModal onClose={() => setShowModal(false)} />}
+      {showModal && <ReviewModal onClose={() => { setShowModal(false); fetchReviews(); }} />}
     </section>
   );
 };

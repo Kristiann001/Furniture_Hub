@@ -17,6 +17,7 @@ const AdminLayout = () => {
     { to: "/admin", label: "Dashboard", icon: "📊", end: true },
     { to: "/admin/products", label: "Products", icon: "🛋️" },
     { to: "/admin/sold-items", label: "Sold Items", icon: "💰" },
+    { to: "/admin/reviews", label: "Reviews", icon: "⭐" },
   ];
 
   // First letter of owner name for the avatar
