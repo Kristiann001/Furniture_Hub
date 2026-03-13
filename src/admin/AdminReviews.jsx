@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { getAllReviews, updateReviewStatus, deleteReview } from "../firebase/reviews";
+import {
+  getAllReviews,
+  updateReviewStatus,
+  deleteReview,
+} from "../firebase/reviews";
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -21,9 +25,11 @@ const AdminReviews = () => {
   }, []);
 
   const handlePin = async (id) => {
-    const pinnedCount = reviews.filter(r => r.status === "pinned").length;
-    if (pinnedCount >= 3) {
-      alert("You can only pin up to 3 reviews to the homepage. Please unpin one first.");
+    const pinnedCount = reviews.filter((r) => r.status === "pinned").length;
+    if (pinnedCount >= 4) {
+      alert(
+        "You can only pin up to 4 reviews to the homepage. Please unpin one first.",
+      );
       return;
     }
     const res = await updateReviewStatus(id, "pinned");
@@ -41,7 +47,9 @@ const AdminReviews = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to permanently delete this review?")) {
+    if (
+      window.confirm("Are you sure you want to permanently delete this review?")
+    ) {
       const res = await deleteReview(id);
       if (res.success) fetchReviews();
     }
@@ -61,7 +69,9 @@ const AdminReviews = () => {
       <div className="admin-header">
         <div>
           <h1 className="admin-title">Customer Reviews</h1>
-          <p className="admin-subtitle">Moderate and pin your top 3 testimonials for the homepage.</p>
+          <p className="admin-subtitle">
+            Moderate and pin your top 4 testimonials for the homepage.
+          </p>
         </div>
       </div>
 
@@ -79,7 +89,10 @@ const AdminReviews = () => {
           <tbody>
             {reviews.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center py-8 text-gray-500 admin-empty-row">
+                <td
+                  colSpan="5"
+                  className="text-center py-8 text-gray-500 admin-empty-row"
+                >
                   No reviews submitted yet.
                 </td>
               </tr>
@@ -87,21 +100,29 @@ const AdminReviews = () => {
               reviews.map((rev) => (
                 <tr key={rev.id}>
                   <td className="text-sm text-gray-500">
-                    {rev.createdAt ? new Date(rev.createdAt.toDate()).toLocaleDateString() : "Just now"}
+                    {rev.createdAt
+                      ? new Date(rev.createdAt.toDate()).toLocaleDateString()
+                      : "Just now"}
                   </td>
                   <td>
                     <div className="font-semibold">{rev.name}</div>
                   </td>
                   <td>
-                    <div className="text-amber-500">{"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}</div>
+                    <div className="text-amber-500">
+                      {"★".repeat(rev.rating)}
+                      {"☆".repeat(5 - rev.rating)}
+                    </div>
                   </td>
                   <td>
                     <div className="mb-2">
                       <span className={`status-badge status-${rev.status}`}>
-                        {rev.status.charAt(0).toUpperCase() + rev.status.slice(1)}
+                        {rev.status.charAt(0).toUpperCase() +
+                          rev.status.slice(1)}
                       </span>
                     </div>
-                    <p className="text-sm italic text-gray-600 dark:text-gray-400 max-w-md">"{rev.comment}"</p>
+                    <p className="text-sm italic text-gray-600 dark:text-gray-400 max-w-md">
+                      "{rev.comment}"
+                    </p>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center gap-2">
@@ -124,15 +145,15 @@ const AdminReviews = () => {
                         </button>
                       )}
                       {rev.status !== "rejected" && (
-                         <button
-                         onClick={() => handleReject(rev.id)}
-                         className="action-btn text-yellow-600 hover:text-yellow-800"
-                         title="Hide (Reject)"
-                       >
-                         ✗
-                       </button>
+                        <button
+                          onClick={() => handleReject(rev.id)}
+                          className="action-btn text-yellow-600 hover:text-yellow-800"
+                          title="Hide (Reject)"
+                        >
+                          ✗
+                        </button>
                       )}
-                      
+
                       <button
                         onClick={() => handleDelete(rev.id)}
                         className="action-btn text-red-600 hover:text-red-800"

@@ -29,6 +29,10 @@ export const storage = getStorage(app);
 export const auth = getAuth(app);
 export const analytics = getAnalytics(app);
 
+// Debug: Log Firebase initialization
+console.log("🔥 Firebase initialized for project:", firebaseConfig.projectId);
+console.log("📊 Firestore database initialized");
+
 // Development: Uncomment to use emulators (if needed)
 // if (import.meta.env.DEV) {
 //   connectFirestoreEmulator(db, 'localhost', 8080);

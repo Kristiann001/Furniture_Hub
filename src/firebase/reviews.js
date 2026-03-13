@@ -1,51 +1,56 @@
-import { 
-  collection, 
-  addDoc, 
+import {
+  collection,
+  addDoc,
   getDocs,
   updateDoc,
   deleteDoc,
-  doc, 
-  query, 
+  doc,
+  query,
   orderBy,
   where,
-  serverTimestamp
-} from 'firebase/firestore';
-import { db } from './config';
+  serverTimestamp,
+} from "firebase/firestore";
+import { db } from "./config";
 
-const REVIEWS_COLLECTION = 'reviews';
+const REVIEWS_COLLECTION = "reviews";
 
 // Customer submits a review (defaults to pending)
 export const addReview = async (reviewData) => {
   try {
+    console.log("📝 Adding review to Firestore:", reviewData);
     const docRef = await addDoc(collection(db, REVIEWS_COLLECTION), {
       ...reviewData,
-      status: 'pending', // all new reviews require admin approval
-      createdAt: serverTimestamp()
+      status: "pending", // all new reviews require admin approval
+      createdAt: serverTimestamp(),
     });
+    console.log("✅ Review added successfully with ID:", docRef.id);
     return { success: true, id: docRef.id };
   } catch (error) {
-    console.error("Error adding review: ", error);
+    console.error("❌ Error adding review: ", error);
     return { success: false, error: error.message };
   }
 };
 
-// Fetch only pinned reviews for the home page (max 3)
+// Fetch only pinned reviews for the home page (max 4)
 // Note: We fetch all and filter client-side to avoid needing a composite index
 export const getPinnedReviews = async () => {
   try {
+    console.log("🔍 Fetching pinned reviews from Firestore...");
     const q = query(
       collection(db, REVIEWS_COLLECTION),
-      orderBy('createdAt', 'desc')
+      orderBy("createdAt", "desc"),
     );
     const querySnapshot = await getDocs(q);
-    const allReviews = querySnapshot.docs.map(d => ({
+    const allReviews = querySnapshot.docs.map((d) => ({
       id: d.id,
-      ...d.data()
+      ...d.data(),
     }));
     // Filter pinned client-side to avoid composite index requirement
-    return allReviews.filter(r => r.status === 'pinned');
+    const pinnedReviews = allReviews.filter((r) => r.status === "pinned");
+    console.log("✅ Found pinned reviews:", pinnedReviews.length);
+    return pinnedReviews;
   } catch (error) {
-    console.error("Error fetching pinned reviews: ", error);
+    console.error("❌ Error fetching pinned reviews: ", error);
     return [];
   }
 };
@@ -55,12 +60,12 @@ export const getAllReviews = async () => {
   try {
     const q = query(
       collection(db, REVIEWS_COLLECTION),
-      orderBy('createdAt', 'desc')
+      orderBy("createdAt", "desc"),
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(d => ({
+    return querySnapshot.docs.map((d) => ({
       id: d.id,
-      ...d.data()
+      ...d.data(),
     }));
   } catch (error) {
     console.error("Error fetching all reviews: ", error);
