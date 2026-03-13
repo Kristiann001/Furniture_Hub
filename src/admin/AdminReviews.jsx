@@ -45,6 +45,8 @@ const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const fetchReviews = async () => {
     try {
@@ -77,10 +79,14 @@ const AdminReviews = () => {
     if (res.success) {
       toast.success("Review pinned to homepage", {
         icon: "📌",
-        style: {
-          background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-          borderLeft: "4px solid #059669",
-        },
+          style: {
+            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+            borderLeft: "4px solid #059669",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "12px",
+            fontWeight: "500",
+          },
       });
       fetchReviews();
     } else {
@@ -99,10 +105,14 @@ const AdminReviews = () => {
     if (res.success) {
       toast.success("Review unpinned", {
         icon: "📤",
-        style: {
-          background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-          borderLeft: "4px solid #2563eb",
-        },
+          style: {
+            background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+            borderLeft: "4px solid #2563eb",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "12px",
+            fontWeight: "500",
+          },
       });
       fetchReviews();
     }
@@ -113,29 +123,43 @@ const AdminReviews = () => {
     if (res.success) {
       toast.success("Review hidden", {
         icon: "👁️‍🗨️",
-        style: {
-          background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-          borderLeft: "4px solid #d97706",
-        },
+          style: {
+            background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+            borderLeft: "4px solid #d97706",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "12px",
+            fontWeight: "500",
+          },
       });
       fetchReviews();
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Permanently delete this review?")) {
-      const res = await deleteReview(id);
-      if (res.success) {
-        toast.success("Review deleted permanently", {
-          icon: "🗑️",
-          style: {
-            background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-            borderLeft: "4px solid #dc2626",
-          },
-        });
-        fetchReviews();
-      }
+  const handleDelete = (rev) => {
+    setDeleteConfirm(rev);
+  };
+
+  const confirmDeleteReview = async () => {
+    if (!deleteConfirm) return;
+    setSaving(true);
+    const res = await deleteReview(deleteConfirm.id);
+    if (res.success) {
+      toast.success("Review deleted permanently", {
+        icon: "🗑️",
+        style: {
+          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+          borderLeft: "4px solid #dc2626",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "12px",
+          fontWeight: "500",
+        },
+      });
+      fetchReviews();
+      setDeleteConfirm(null);
     }
+    setSaving(false);
   };
 
   const pinnedReviews = reviews.filter((r) => r.status === "pinned");
@@ -347,13 +371,13 @@ const AdminReviews = () => {
                           📌 Pin
                         </button>
                       )}
-                      <button
-                        className="rev-btn rev-btn--delete"
-                        onClick={() => handleDelete(rev.id)}
-                        title="Delete"
-                      >
-                        🗑️
-                      </button>
+                        <button
+                          className="rev-btn rev-btn--delete"
+                          onClick={() => handleDelete(rev)}
+                          title="Delete"
+                        >
+                          🗑️ Delete
+                        </button>
                     </div>
                   </td>
                 </tr>
@@ -431,15 +455,61 @@ const AdminReviews = () => {
                 )}
                 <button
                   className="rev-btn rev-btn--delete"
-                  onClick={() => handleDelete(rev.id)}
+                  onClick={() => handleDelete(rev)}
                 >
-                  🗑️
+                  🗑️ Delete
                 </button>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* ── Delete Confirmation Modal ─────────────────── */}
+      {deleteConfirm && (
+        <div
+          className="admin-modal-backdrop"
+          onClick={() => setDeleteConfirm(null)}
+        >
+          <div
+            className="admin-modal admin-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="admin-confirm-icon">🗑️</div>
+            <h3>Delete Review?</h3>
+            <p>
+              Are you sure you want to delete the review from{" "}
+              <strong>{deleteConfirm.name}</strong>? This action cannot be
+              undone.
+            </p>
+            <div className="admin-confirm-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setDeleteConfirm(null)}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn admin-btn-delete"
+                onClick={confirmDeleteReview}
+                disabled={saving}
+              >
+                {saving ? (
+                   <span className="btn-spinner">
+                   <span className="spinner-bin">🗑️</span>
+                 </span>
+                ) : (
+                  <>
+                    <span className="btn-icon">🗑️</span>
+                    Delete Review
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

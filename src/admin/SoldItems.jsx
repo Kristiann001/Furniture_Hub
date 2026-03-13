@@ -12,6 +12,7 @@ const SoldItems = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [processingId, setProcessingId] = useState(null);
+  const [availableConfirm, setAvailableConfirm] = useState(null);
 
   useEffect(() => {
     loadSoldProducts();
@@ -29,33 +30,38 @@ const SoldItems = () => {
     }
   };
 
-  const handleMarkAvailable = async (product) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to mark "${product.name}" as available again?`,
-      )
-    ) {
-      return;
-    }
+  const handleMarkAvailable = async () => {
+    if (!availableConfirm) return;
 
     try {
-      setProcessingId(product.id);
-      await markProductAsAvailable(product.id);
+      setProcessingId(availableConfirm.id);
+      await markProductAsAvailable(availableConfirm.id);
       toast.success("Product marked as available", {
         icon: "♻️",
         style: {
           background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
           borderLeft: "4px solid #059669",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "12px",
+          fontWeight: "500",
         },
       });
       // Remove from list
-      setSoldProducts((prev) => prev.filter((p) => p.id !== product.id));
+      setSoldProducts((prev) =>
+        prev.filter((p) => p.id !== availableConfirm.id),
+      );
+      setAvailableConfirm(null);
     } catch (err) {
       toast.error("Failed to update product. Please try again.", {
         icon: "⚠️",
         style: {
           background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
           borderLeft: "4px solid #dc2626",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "12px",
+          fontWeight: "500",
         },
       });
     } finally {
@@ -190,6 +196,52 @@ const SoldItems = () => {
           </table>
         )}
       </div>
+
+      {/* ── Confirm Restore Modal ─────────────────────── */}
+      {availableConfirm && (
+        <div
+          className="admin-modal-backdrop"
+          onClick={() => setAvailableConfirm(null)}
+        >
+          <div
+            className="admin-modal admin-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="admin-confirm-icon"
+              style={{ fontSize: 40, marginBottom: 16 }}
+            >
+              ♻️
+            </div>
+            <h3>Restore to Stock?</h3>
+            <p>
+              Are you sure you want to mark <strong>{availableConfirm.name}</strong> as available?
+              It will be moved back to the main Products list.
+            </p>
+            <div className="admin-confirm-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setAvailableConfirm(null)}
+                disabled={processingId}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleMarkAvailable}
+                disabled={processingId}
+                style={{
+                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  border: "none",
+                  color: "#fff",
+                }}
+              >
+                {processingId ? <span className="btn-spinner" /> : "Restore Product"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

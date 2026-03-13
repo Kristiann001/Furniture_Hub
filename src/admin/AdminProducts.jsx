@@ -72,6 +72,10 @@ const AdminProducts = () => {
           style: {
             background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
             borderLeft: "4px solid #059669",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "12px",
+            fontWeight: "500",
           },
         });
       } else {
@@ -83,6 +87,10 @@ const AdminProducts = () => {
           style: {
             background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
             borderLeft: "4px solid #059669",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "12px",
+            fontWeight: "500",
           },
         });
       }
@@ -107,19 +115,27 @@ const AdminProducts = () => {
       await deleteProduct(id);
       setProductList((prev) => prev.filter((p) => p.id !== id));
       setDeleteConfirm(null);
-      toast.success("Product deleted permanently", {
-        icon: "🗑️",
-        style: {
-          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-          borderLeft: "4px solid #dc2626",
-        },
-      });
+        toast.success("Product deleted permanently", {
+          icon: "🗑️",
+          style: {
+            background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+            borderLeft: "4px solid #dc2626",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "12px",
+            fontWeight: "500",
+          },
+        });
     } catch (err) {
       toast.error("Failed to delete product. Please try again.", {
         icon: "❌",
         style: {
           background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
           borderLeft: "4px solid #dc2626",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "12px",
+          fontWeight: "500",
         },
       });
     } finally {
@@ -146,6 +162,10 @@ const AdminProducts = () => {
         style: {
           background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
           borderLeft: "4px solid #059669",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "12px",
+          fontWeight: "500",
         },
       });
       setSoldConfirm(null);
@@ -309,7 +329,7 @@ const AdminProducts = () => {
                         title="Delete"
                         disabled={saving}
                       >
-                        🗑️
+                        🗑️ Delete
                       </button>
                     </div>
                   </td>
@@ -347,6 +367,7 @@ const AdminProducts = () => {
             className="admin-modal admin-confirm-modal"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="admin-confirm-icon">🗑️</div>
             <h3>Delete Product?</h3>
             <p>
               Are you sure you want to delete{" "}
@@ -371,7 +392,7 @@ const AdminProducts = () => {
                 ) : (
                   <>
                     <span className="btn-icon">🗑️</span>
-                    Delete
+                    Delete Product
                   </>
                 )}
               </button>
