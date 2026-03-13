@@ -126,61 +126,68 @@ const useFormValidation = (initialState) => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  const validateField = useCallback(
-    (name, value) => {
-      const newErrors = { ...errors };
+  const validateField = useCallback((name, value, currentErrors) => {
+    const newErrors = { ...currentErrors };
 
-      switch (name) {
-        case "name":
-          if (!value.trim()) {
-            newErrors.name = "Name is required";
-          } else if (value.trim().length < 2) {
-            newErrors.name = "Name must be at least 2 characters";
-          } else {
-            delete newErrors.name;
-          }
-          break;
+    switch (name) {
+      case "name":
+        if (!value.trim()) {
+          newErrors.name = "Name is required";
+        } else if (value.trim().length < 2) {
+          newErrors.name = "Name must be at least 2 characters";
+        } else {
+          delete newErrors.name;
+        }
+        break;
 
-        case "comment":
-          if (!value.trim()) {
-            newErrors.comment = "Review is required";
-          } else if (value.trim().length < 10) {
-            newErrors.comment = "Review must be at least 10 characters";
-          } else if (value.trim().length > 500) {
-            newErrors.comment = "Review must be less than 500 characters";
-          } else {
-            delete newErrors.comment;
-          }
-          break;
+      case "comment":
+        if (!value.trim()) {
+          newErrors.comment = "Review is required";
+        } else if (value.trim().length < 10) {
+          newErrors.comment = "Review must be at least 10 characters";
+        } else if (value.trim().length > 500) {
+          newErrors.comment = "Review must be less than 500 characters";
+        } else {
+          delete newErrors.comment;
+        }
+        break;
 
-        default:
-          break;
-      }
+      default:
+        break;
+    }
 
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    },
-    [errors],
-  );
+    return Object.keys(newErrors).length === 0
+      ? newErrors
+      : { ...newErrors, hasError: true };
+  }, []);
 
   const updateField = useCallback(
     (name, value) => {
       setFormData((prev) => ({ ...prev, [name]: value }));
       setTouched((prev) => ({ ...prev, [name]: true }));
-      if (touched[name]) {
-        validateField(name, value);
-      }
+      // Always validate on update to show real-time errors
+      const newErrors = validateField(name, value, errors);
+      setErrors(newErrors.hasError ? { ...newErrors } : {});
     },
-    [touched, validateField],
+    [errors, validateField],
   );
 
   const validateAll = useCallback(() => {
+    let allErrors = {};
     let isValid = true;
-    Object.keys(formData).forEach((name) => {
-      if (!validateField(name, formData[name])) {
+
+    // Only validate name and comment fields (rating is always valid)
+    const fieldsToValidate = ["name", "comment"];
+
+    fieldsToValidate.forEach((name) => {
+      const fieldErrors = validateField(name, formData[name], allErrors);
+      if (fieldErrors.hasError) {
+        allErrors = { ...allErrors, ...fieldErrors };
         isValid = false;
       }
     });
+
+    setErrors(isValid ? {} : allErrors);
     return isValid;
   }, [formData, validateField]);
 
@@ -191,6 +198,8 @@ const useFormValidation = (initialState) => {
     updateField,
     validateAll,
     setFormData,
+    setErrors,
+    setTouched,
   };
 };
 
@@ -206,31 +215,44 @@ const Testimonials = () => {
   const formRef = useRef(null);
   const successTimeoutRef = useRef(null);
 
-  const { formData, errors, touched, updateField, validateAll, setFormData } =
-    useFormValidation({ name: "", rating: 5, comment: "" });
+  const {
+    formData,
+    errors,
+    touched,
+    updateField,
+    validateAll,
+    setFormData,
+    setErrors,
+    setTouched,
+  } = useFormValidation({ name: "", rating: 5, comment: "" });
 
-  // Optimized real-time listener with error handling
+  // Optimized real-time listener with error handling (fixed without composite index)
   useEffect(() => {
     setLoading(true);
+    console.log("🔍 Setting up reviews listener...");
 
+    // Simple query without composite index requirement
     const reviewsQuery = query(
       collection(db, "reviews"),
-      where("status", "==", "pinned"),
       orderBy("createdAt", "desc"),
     );
 
     const unsubscribe = onSnapshot(
       reviewsQuery,
       (snap) => {
-        const pinned = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
+        console.log("📊 Reviews snapshot received:", snap.docs.length, "docs");
+        const allReviews = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        // Filter pinned client-side to avoid composite index
+        const pinned = allReviews
+          .filter((r) => r.status === "pinned")
           .slice(0, MAX_REVIEWS);
+        console.log("⭐ Pinned reviews processed:", pinned);
         setReviews(pinned);
         setLoading(false);
         setSubmitError(null);
       },
       (err) => {
-        console.error("Reviews listener error:", err);
+        console.error("❌ Reviews listener error:", err);
         setSubmitError("Failed to load reviews. Please refresh the page.");
         setLoading(false);
       },
@@ -275,8 +297,18 @@ const Testimonials = () => {
   // Enhanced form submission with better error handling
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("📝 Form submission started:", formData);
+    console.log("🔍 Current errors:", errors);
 
-    if (!validateAll()) {
+    // Clear touched state to ensure validation runs on all fields
+    setTouched({ name: true, rating: true, comment: true });
+
+    // Force validation on all fields
+    const isValid = validateAll();
+    console.log("✅ Validation result:", isValid, "Final errors:", errors);
+
+    if (!isValid) {
+      console.log("❌ Form validation failed:", errors);
       // Focus on first error field
       const firstErrorField = formRef.current?.querySelector(
         '[aria-invalid="true"]',
@@ -289,13 +321,18 @@ const Testimonials = () => {
 
     setIsSubmitting(true);
     setSubmitError(null);
+    console.log("✅ Form validation passed, submitting review...");
 
     try {
-      const result = await addReview({
+      const reviewData = {
         name: formData.name.trim(),
         rating: formData.rating,
         comment: formData.comment.trim(),
-      });
+      };
+      console.log("📤 Review data to submit:", reviewData);
+
+      const result = await addReview(reviewData);
+      console.log("📊 Review submission result:", result);
 
       if (result.success) {
         setSuccess(true);
@@ -347,13 +384,15 @@ const Testimonials = () => {
               What Our Customers Say
             </h2>
           </div>
-          <button
-            className="btn btn-outline btn-leave-review"
-            onClick={scrollToForm}
-            aria-label="Write a review"
-          >
-            Leave a Review
-          </button>
+          <div style={{ display: "flex", gap: "12px" }}>
+            <button
+              className="btn btn-outline btn-leave-review"
+              onClick={scrollToForm}
+              aria-label="Write a review"
+            >
+              Leave a Review
+            </button>
+          </div>
         </header>
 
         {/* Content Area */}
@@ -391,6 +430,8 @@ const Testimonials = () => {
             </div>
           )}
         </main>
+
+
 
         {/* Review Form */}
         <section
@@ -457,7 +498,7 @@ const Testimonials = () => {
                     role="radiogroup"
                     aria-label="Select a rating"
                   >
-                    {[5, 4, 3, 2, 1].map((star) => (
+                    {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"

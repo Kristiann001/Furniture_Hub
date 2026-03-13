@@ -4,21 +4,25 @@ import {
   updateReviewStatus,
   deleteReview,
 } from "../firebase/reviews";
+import toast from "react-hot-toast";
 
 const StarRow = ({ rating }) =>
   Array(5)
     .fill(0)
     .map((_, i) => (
-      <span key={i} style={{ color: i < rating ? "#f59e0b" : "#d1d5db", fontSize: 15 }}>
+      <span
+        key={i}
+        style={{ color: i < rating ? "#f59e0b" : "#d1d5db", fontSize: 15 }}
+      >
         ★
       </span>
     ));
 
 const StatusBadge = ({ status }) => {
   const map = {
-    pinned:   { label: "📌 Pinned",  cls: "rev-badge rev-badge--pinned"   },
-    pending:  { label: "⏳ Pending", cls: "rev-badge rev-badge--pending"  },
-    rejected: { label: "✗ Hidden",  cls: "rev-badge rev-badge--rejected" },
+    pinned: { label: "📌 Pinned", cls: "rev-badge rev-badge--pinned" },
+    pending: { label: "⏳ Pending", cls: "rev-badge rev-badge--pending" },
+    rejected: { label: "✗ Hidden", cls: "rev-badge rev-badge--rejected" },
   };
   const { label, cls } = map[status] ?? map.pending;
   return <span className={cls}>{label}</span>;
@@ -26,8 +30,15 @@ const StatusBadge = ({ status }) => {
 
 const fmtDate = (ts) => {
   if (!ts) return "Just now";
-  try { return new Date(ts.toDate()).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); }
-  catch { return "Just now"; }
+  try {
+    return new Date(ts.toDate()).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return "Just now";
+  }
 };
 
 const AdminReviews = () => {
@@ -46,36 +57,88 @@ const AdminReviews = () => {
     }
   };
 
-  useEffect(() => { fetchReviews(); }, []);
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   const handlePin = async (id) => {
     const pinnedCount = reviews.filter((r) => r.status === "pinned").length;
     if (pinnedCount >= 4) {
-      alert("You can only pin up to 4 reviews. Please unpin one first.");
+      toast.error("You can only pin up to 4 reviews. Please unpin one first.", {
+        icon: "📌",
+        style: {
+          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+          borderLeft: "4px solid #dc2626",
+        },
+      });
       return;
     }
     const res = await updateReviewStatus(id, "pinned");
-    if (res.success) fetchReviews();
+    if (res.success) {
+      toast.success("Review pinned to homepage", {
+        icon: "📌",
+        style: {
+          background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+          borderLeft: "4px solid #059669",
+        },
+      });
+      fetchReviews();
+    } else {
+      toast.error("Failed to pin review", {
+        icon: "❌",
+        style: {
+          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+          borderLeft: "4px solid #dc2626",
+        },
+      });
+    }
   };
 
   const handleUnpin = async (id) => {
     const res = await updateReviewStatus(id, "pending");
-    if (res.success) fetchReviews();
+    if (res.success) {
+      toast.success("Review unpinned", {
+        icon: "📤",
+        style: {
+          background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+          borderLeft: "4px solid #2563eb",
+        },
+      });
+      fetchReviews();
+    }
   };
 
   const handleReject = async (id) => {
     const res = await updateReviewStatus(id, "rejected");
-    if (res.success) fetchReviews();
+    if (res.success) {
+      toast.success("Review hidden", {
+        icon: "👁️‍🗨️",
+        style: {
+          background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+          borderLeft: "4px solid #d97706",
+        },
+      });
+      fetchReviews();
+    }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("Permanently delete this review?")) {
       const res = await deleteReview(id);
-      if (res.success) fetchReviews();
+      if (res.success) {
+        toast.success("Review deleted permanently", {
+          icon: "🗑️",
+          style: {
+            background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+            borderLeft: "4px solid #dc2626",
+          },
+        });
+        fetchReviews();
+      }
     }
   };
 
-  const pinnedReviews  = reviews.filter((r) => r.status === "pinned");
+  const pinnedReviews = reviews.filter((r) => r.status === "pinned");
   const pendingReviews = reviews.filter((r) => r.status === "pending");
   const rejectedReviews = reviews.filter((r) => r.status === "rejected");
 
@@ -83,10 +146,10 @@ const AdminReviews = () => {
     filter === "all"
       ? reviews
       : filter === "pinned"
-      ? pinnedReviews
-      : filter === "pending"
-      ? pendingReviews
-      : rejectedReviews;
+        ? pinnedReviews
+        : filter === "pending"
+          ? pendingReviews
+          : rejectedReviews;
 
   if (loading) {
     return (
@@ -99,7 +162,6 @@ const AdminReviews = () => {
 
   return (
     <div className="admin-page">
-
       {/* ── Header ─────────────────────────────────────── */}
       <div className="admin-header">
         <div>
@@ -135,7 +197,9 @@ const AdminReviews = () => {
         {pinnedReviews.length === 0 ? (
           <div className="rev-pinned-empty">
             <span>💬</span>
-            <p>No reviews pinned yet. Pin up to 4 to showcase on the homepage.</p>
+            <p>
+              No reviews pinned yet. Pin up to 4 to showcase on the homepage.
+            </p>
           </div>
         ) : (
           <div className="rev-pinned-grid">
@@ -147,7 +211,9 @@ const AdminReviews = () => {
                   </div>
                   <div className="rev-pinned-meta">
                     <span className="rev-pinned-name">{rev.name}</span>
-                    <span className="rev-pinned-date">{fmtDate(rev.createdAt)}</span>
+                    <span className="rev-pinned-date">
+                      {fmtDate(rev.createdAt)}
+                    </span>
                   </div>
                   <button
                     className="rev-unpin-btn"
@@ -168,7 +234,10 @@ const AdminReviews = () => {
             {Array(4 - pinnedReviews.length)
               .fill(0)
               .map((_, i) => (
-                <div key={`empty-${i}`} className="rev-pinned-card rev-pinned-card--empty">
+                <div
+                  key={`empty-${i}`}
+                  className="rev-pinned-card rev-pinned-card--empty"
+                >
                   <span>＋</span>
                   <p>Empty slot</p>
                 </div>
@@ -180,10 +249,10 @@ const AdminReviews = () => {
       {/* ── Filter Tabs ────────────────────────────────── */}
       <div className="rev-filter-bar">
         {[
-          { key: "all",      label: "All",      count: reviews.length },
-          { key: "pending",  label: "Pending",  count: pendingReviews.length },
-          { key: "pinned",   label: "Pinned",   count: pinnedReviews.length },
-          { key: "rejected", label: "Hidden",   count: rejectedReviews.length },
+          { key: "all", label: "All", count: reviews.length },
+          { key: "pending", label: "Pending", count: pendingReviews.length },
+          { key: "pinned", label: "Pinned", count: pinnedReviews.length },
+          { key: "rejected", label: "Hidden", count: rejectedReviews.length },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -218,7 +287,10 @@ const AdminReviews = () => {
               </tr>
             ) : (
               filtered.map((rev) => (
-                <tr key={rev.id} className={rev.status === "pinned" ? "rev-row--pinned" : ""}>
+                <tr
+                  key={rev.id}
+                  className={rev.status === "pinned" ? "rev-row--pinned" : ""}
+                >
                   <td>
                     <div className="rev-customer-cell">
                       <span className="rev-table-avatar">
@@ -308,7 +380,9 @@ const AdminReviews = () => {
                 </span>
                 <div className="rev-mobile-meta">
                   <span className="rev-mobile-name">{rev.name}</span>
-                  <span className="rev-mobile-date">{fmtDate(rev.createdAt)}</span>
+                  <span className="rev-mobile-date">
+                    {fmtDate(rev.createdAt)}
+                  </span>
                 </div>
                 <StatusBadge status={rev.status} />
               </div>

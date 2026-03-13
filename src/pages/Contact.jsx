@@ -3,22 +3,27 @@ import { Link } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import toast from "react-hot-toast";
 
 // ── EmailJS Config ──────────────────────────────────────────────────────────
 // Set these three vars in your .env file:
 //   VITE_EMAILJS_SERVICE_ID  → e.g. service_xxxxxxx
 //   VITE_EMAILJS_TEMPLATE_ID → e.g. template_xxxxxxx
 //   VITE_EMAILJS_PUBLIC_KEY  → e.g. xxxxxxxxxxxxxxxxxxxxxx
-const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-const OWNER_EMAIL         = "fredrick.simiyu99@gmail.com";
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+const OWNER_EMAIL = "fredrick.simiyu99@gmail.com";
 
 const Contact = () => {
   const formRef = useRef(null);
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
   const [sending, setSending] = useState(false);
-  const [status, setStatus] = useState(null); // "success" | "error" | null
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,13 +32,14 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus(null);
     setSending(true);
 
     // If EmailJS keys are not yet configured, warn and fall back gracefully
     if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
       setSending(false);
-      setStatus("config-missing");
+      toast.error(
+        "Email not configured yet. Please use WhatsApp to contact us.",
+      );
       return;
     }
 
@@ -42,13 +48,25 @@ const Contact = () => {
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         formRef.current,
-        EMAILJS_PUBLIC_KEY
+        EMAILJS_PUBLIC_KEY,
       );
-      setStatus("success");
+      toast.success("Message sent! We'll get back to you soon.", {
+        icon: "📧",
+        style: {
+          background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+          borderLeft: "4px solid #059669",
+        },
+      });
       setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
       console.error("EmailJS error:", err);
-      setStatus("error");
+      toast.error("Failed to send message. Please try again or use WhatsApp.", {
+        icon: "📧",
+        style: {
+          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+          borderLeft: "4px solid #dc2626",
+        },
+      });
     } finally {
       setSending(false);
     }
@@ -56,8 +74,12 @@ const Contact = () => {
 
   const handleWhatsAppClick = () => {
     const phone = "254720515922";
-    const message = "Hello Furniture Hub Kenya, I would like to inquire about your furniture collection.";
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank");
+    const message =
+      "Hello Furniture Hub Kenya, I would like to inquire about your furniture collection.";
+    window.open(
+      `https://wa.me/${phone}?text=${encodeURIComponent(message)}`,
+      "_blank",
+    );
   };
 
   return (
@@ -84,8 +106,8 @@ const Contact = () => {
             <div className="contact-info">
               <h1>We'd Love To Hear From You</h1>
               <p className="contact-description">
-                Have questions about our products? Need design advice? Reach out through
-                any of the channels below or fill out the form.
+                Have questions about our products? Need design advice? Reach out
+                through any of the channels below or fill out the form.
               </p>
 
               <div className="contact-details">
@@ -94,9 +116,12 @@ const Contact = () => {
                   <div>
                     <div className="contact-label">Showroom Address</div>
                     <div className="contact-value">
-                      Furniture Hub Kenya<br />
-                      Westlands Business Centre<br />
-                      Ring Road, Westlands<br />
+                      Furniture Hub Kenya
+                      <br />
+                      Westlands Business Centre
+                      <br />
+                      Ring Road, Westlands
+                      <br />
                       Nairobi, Kenya
                     </div>
                   </div>
@@ -127,7 +152,10 @@ const Contact = () => {
                   <div>
                     <div className="contact-label">WhatsApp</div>
                     <div className="contact-value">
-                      <button className="btn btn-whatsapp" onClick={handleWhatsAppClick}>
+                      <button
+                        className="btn btn-whatsapp"
+                        onClick={handleWhatsAppClick}
+                      >
                         Chat on WhatsApp
                       </button>
                     </div>
@@ -157,51 +185,16 @@ const Contact = () => {
             {/* Contact Form */}
             <div className="contact-form">
               <h2>Send Us a Message</h2>
-              <p style={{ color: "var(--text-muted, #888)", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
-                Your message will be sent directly to <strong>{OWNER_EMAIL}</strong>
+              <p
+                style={{
+                  color: "var(--text-muted, #888)",
+                  marginBottom: "1.5rem",
+                  fontSize: "0.9rem",
+                }}
+              >
+                Your message will be sent directly to{" "}
+                <strong>{OWNER_EMAIL}</strong>
               </p>
-
-              {/* Status messages */}
-              {status === "success" && (
-                <div
-                  style={{
-                    background: "#e8f5e9",
-                    border: "1px solid #a5d6a7",
-                    borderRadius: 8,
-                    padding: "1rem",
-                    marginBottom: "1.25rem",
-                    color: "#2e7d32",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  ✅ <strong>Message sent!</strong>&nbsp; We'll get back to you soon.
-                </div>
-              )}
-
-              {status === "error" && (
-                <div className="auth-error" style={{ marginBottom: "1.25rem" }}>
-                  ⚠ Failed to send message. Please try again or contact us via WhatsApp.
-                </div>
-              )}
-
-              {status === "config-missing" && (
-                <div
-                  style={{
-                    background: "#fff8e1",
-                    border: "1px solid #ffe082",
-                    borderRadius: 8,
-                    padding: "1rem",
-                    marginBottom: "1.25rem",
-                    color: "#7a5c00",
-                    fontSize: "0.85rem",
-                  }}
-                >
-                  ⚙️ <strong>Email not configured yet.</strong> The site owner needs to add EmailJS keys to the <code>.env</code> file.
-                  In the meantime, please use WhatsApp to contact us.
-                </div>
-              )}
 
               <form ref={formRef} onSubmit={handleSubmit}>
                 {/* Hidden field so EmailJS template can show recipient */}

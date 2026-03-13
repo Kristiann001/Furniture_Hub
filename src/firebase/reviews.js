@@ -18,15 +18,23 @@ const REVIEWS_COLLECTION = "reviews";
 export const addReview = async (reviewData) => {
   try {
     console.log("📝 Adding review to Firestore:", reviewData);
+    console.log("🔥 Firebase DB instance:", db);
+    console.log("📁 Collection name:", REVIEWS_COLLECTION);
+
     const docRef = await addDoc(collection(db, REVIEWS_COLLECTION), {
       ...reviewData,
       status: "pending", // all new reviews require admin approval
       createdAt: serverTimestamp(),
     });
+
     console.log("✅ Review added successfully with ID:", docRef.id);
+    console.log("📊 Full document reference:", docRef);
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error("❌ Error adding review: ", error);
+    console.error("❌ Error code:", error.code);
+    console.error("❌ Error message:", error.message);
+    console.error("❌ Error details:", error.details);
     return { success: false, error: error.message };
   }
 };

@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { productCategories, woodTypes } from "../data/products";
-import { fetchProducts, addProduct, updateProduct, deleteProduct, markProductAsSold } from "../firebase/products";
+import {
+  fetchProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  markProductAsSold,
+} from "../firebase/products";
 import ProductModal from "./ProductModal";
+import toast from "react-hot-toast";
 
 const AdminProducts = () => {
   const [productList, setProductList] = useState([]);
@@ -14,7 +21,6 @@ const AdminProducts = () => {
   const [soldConfirm, setSoldConfirm] = useState(null);
   const [soldNote, setSoldNote] = useState("");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
 
   // ── Load from Firestore on mount ─────────────────────────────
   useEffect(() => {
@@ -23,7 +29,9 @@ const AdminProducts = () => {
         const data = await fetchProducts();
         setProductList(data);
       } catch (err) {
-        setError("Failed to load products. Check your Firestore connection.");
+        toast.error(
+          "Failed to load products. Check your Firestore connection.",
+        );
       } finally {
         setLoadingProducts(false);
       }
@@ -41,27 +49,52 @@ const AdminProducts = () => {
     return matchesCat && matchesSearch;
   });
 
-  const openAdd = () => { setEditingProduct(null); setModalOpen(true); };
-  const openEdit = (p) => { setEditingProduct(p); setModalOpen(true); };
+  const openAdd = () => {
+    setEditingProduct(null);
+    setModalOpen(true);
+  };
+  const openEdit = (p) => {
+    setEditingProduct(p);
+    setModalOpen(true);
+  };
 
   // ── Save (Add / Edit) ─────────────────────────────────────────
   const handleSave = async (product) => {
     setSaving(true);
-    setError("");
     try {
       if (editingProduct) {
         // Edit existing
         const { id, ...updates } = product;
         await updateProduct(id, updates);
         setProductList((prev) => prev.map((p) => (p.id === id ? product : p)));
+        toast.success("Product updated successfully", {
+          icon: "✅",
+          style: {
+            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+            borderLeft: "4px solid #059669",
+          },
+        });
       } else {
         // Add new
         const newId = await addProduct(product);
         setProductList((prev) => [{ ...product, id: newId }, ...prev]);
+        toast.success("Product added successfully", {
+          icon: "➕",
+          style: {
+            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+            borderLeft: "4px solid #059669",
+          },
+        });
       }
       setModalOpen(false);
     } catch (err) {
-      setError("Failed to save product. Please try again.");
+      toast.error("Failed to save product. Please try again.", {
+        icon: "⚠️",
+        style: {
+          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+          borderLeft: "4px solid #dc2626",
+        },
+      });
     } finally {
       setSaving(false);
     }
@@ -70,13 +103,25 @@ const AdminProducts = () => {
   // ── Delete ────────────────────────────────────────────────────
   const handleDelete = async (id) => {
     setSaving(true);
-    setError("");
     try {
       await deleteProduct(id);
       setProductList((prev) => prev.filter((p) => p.id !== id));
       setDeleteConfirm(null);
+      toast.success("Product deleted permanently", {
+        icon: "🗑️",
+        style: {
+          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+          borderLeft: "4px solid #dc2626",
+        },
+      });
     } catch (err) {
-      setError("Failed to delete product. Please try again.");
+      toast.error("Failed to delete product. Please try again.", {
+        icon: "❌",
+        style: {
+          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+          borderLeft: "4px solid #dc2626",
+        },
+      });
     } finally {
       setSaving(false);
     }
@@ -86,7 +131,6 @@ const AdminProducts = () => {
   const handleMarkSold = async () => {
     if (!soldConfirm) return;
     setSaving(true);
-    setError("");
     try {
       await markProductAsSold(soldConfirm.id, soldNote);
       // Update local state to reflect the item is sold
@@ -94,13 +138,26 @@ const AdminProducts = () => {
         prev.map((p) =>
           p.id === soldConfirm.id
             ? { ...p, status: "sold", badge: "Sold Out" }
-            : p
-        )
+            : p,
+        ),
       );
+      toast.success("Product marked as sold", {
+        icon: "💰",
+        style: {
+          background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+          borderLeft: "4px solid #059669",
+        },
+      });
       setSoldConfirm(null);
       setSoldNote("");
     } catch (err) {
-      setError("Failed to mark product as sold. Please try again.");
+      toast.error("Failed to mark product as sold. Please try again.", {
+        icon: "⚠️",
+        style: {
+          background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+          borderLeft: "4px solid #dc2626",
+        },
+      });
     } finally {
       setSaving(false);
     }
@@ -117,16 +174,14 @@ const AdminProducts = () => {
               : `${filtered.length} of ${productList.length} products`}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd} id="add-product-btn">
+        <button
+          className="btn btn-primary"
+          onClick={openAdd}
+          id="add-product-btn"
+        >
           + Add Product
         </button>
       </div>
-
-      {error && (
-        <div className="auth-error" style={{ marginBottom: 16 }}>
-          ⚠ {error}
-        </div>
-      )}
 
       {/* Filters */}
       <div className="admin-filters">
@@ -155,7 +210,10 @@ const AdminProducts = () => {
       <div className="admin-table-wrap">
         {loadingProducts ? (
           <div style={{ padding: 40, textAlign: "center" }}>
-            <span className="btn-spinner btn-spinner--dark" style={{ width: 32, height: 32 }} />
+            <span
+              className="btn-spinner btn-spinner--dark"
+              style={{ width: 32, height: 32 }}
+            />
           </div>
         ) : (
           <table className="admin-table">
@@ -176,13 +234,21 @@ const AdminProducts = () => {
                   <td>
                     <div className="admin-table-product">
                       {p.image ? (
-                        <img src={p.image} alt={p.name} className="admin-table-img" />
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="admin-table-img"
+                        />
                       ) : (
-                        <div className="admin-table-img admin-table-img--empty">📦</div>
+                        <div className="admin-table-img admin-table-img--empty">
+                          📦
+                        </div>
                       )}
                       <div>
                         <div className="admin-product-name">{p.name}</div>
-                        <div className="admin-product-id">ID: {p.id?.slice(0, 8)}…</div>
+                        <div className="admin-product-id">
+                          ID: {p.id?.slice(0, 8)}…
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -194,7 +260,9 @@ const AdminProducts = () => {
                   <td>
                     <div className="admin-price">{p.price}</div>
                     {p.originalPrice && (
-                      <div className="admin-original-price">{p.originalPrice}</div>
+                      <div className="admin-original-price">
+                        {p.originalPrice}
+                      </div>
                     )}
                   </td>
                   <td>
@@ -219,7 +287,11 @@ const AdminProducts = () => {
                           className="btn btn-secondary"
                           onClick={() => setSoldConfirm(p)}
                           title="Mark as Sold"
-                          style={{ padding: "4px 8px", fontSize: "14px", marginRight: "4px" }}
+                          style={{
+                            padding: "4px 8px",
+                            fontSize: "14px",
+                            marginRight: "4px",
+                          }}
                         >
                           💰 Sold
                         </button>
@@ -267,23 +339,41 @@ const AdminProducts = () => {
 
       {/* Delete confirmation */}
       {deleteConfirm && (
-        <div className="admin-modal-backdrop" onClick={() => setDeleteConfirm(null)}>
-          <div className="admin-modal admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="admin-modal-backdrop"
+          onClick={() => setDeleteConfirm(null)}
+        >
+          <div
+            className="admin-modal admin-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3>Delete Product?</h3>
             <p>
-              Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This
-              cannot be undone.
+              Are you sure you want to delete{" "}
+              <strong>{deleteConfirm.name}</strong>? This cannot be undone.
             </p>
             <div className="admin-confirm-actions">
-              <button className="btn btn-secondary" onClick={() => setDeleteConfirm(null)}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setDeleteConfirm(null)}
+              >
                 Cancel
               </button>
               <button
-                className="btn admin-btn-danger"
+                className="btn admin-btn-delete"
                 onClick={() => handleDelete(deleteConfirm.id)}
                 disabled={saving}
               >
-                {saving ? <span className="btn-spinner" /> : "Delete"}
+                {saving ? (
+                  <span className="btn-spinner">
+                    <span className="spinner-bin">🗑️</span>
+                  </span>
+                ) : (
+                  <>
+                    <span className="btn-icon">🗑️</span>
+                    Delete
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -292,11 +382,21 @@ const AdminProducts = () => {
 
       {/* Sold confirmation */}
       {soldConfirm && (
-        <div className="admin-modal-backdrop" onClick={() => { setSoldConfirm(null); setSoldNote(""); }}>
-          <div className="admin-modal admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="admin-modal-backdrop"
+          onClick={() => {
+            setSoldConfirm(null);
+            setSoldNote("");
+          }}
+        >
+          <div
+            className="admin-modal admin-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3>Mark as Sold?</h3>
             <p style={{ marginBottom: 16 }}>
-              You are marking <strong>{soldConfirm.name}</strong> as sold. It will be moved to the Sold Items page.
+              You are marking <strong>{soldConfirm.name}</strong> as sold. It
+              will be moved to the Sold Items page.
             </p>
             <div className="form-group" style={{ textAlign: "left" }}>
               <label className="form-label">Sold Note (Optional)</label>
@@ -309,7 +409,13 @@ const AdminProducts = () => {
               />
             </div>
             <div className="admin-confirm-actions" style={{ marginTop: 24 }}>
-              <button className="btn btn-secondary" onClick={() => { setSoldConfirm(null); setSoldNote(""); }}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  setSoldConfirm(null);
+                  setSoldNote("");
+                }}
+              >
                 Cancel
               </button>
               <button

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AdminProvider } from "./context/AdminContext";
 import { useAdmin } from "./context/AdminContext";
+import { Toaster } from "react-hot-toast";
 
 // Customer pages
 import Home from "./pages/Home";
@@ -34,6 +35,7 @@ function App() {
     <ThemeProvider>
       <AdminProvider>
         <Router>
+        <Toaster position="top-center" />
         <Routes>
           {/* ── Public / Customer routes ── */}
           <Route path="/" element={<><Home /><FloatingWhatsApp /></>} />
