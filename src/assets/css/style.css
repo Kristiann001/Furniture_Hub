@@ -3152,6 +3152,20 @@ p {
 
 .team-member {
   text-align: center;
+  padding: var(--spacing-lg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-member:hover {
+  transform: translateY(-8px);
+}
+
+.team-member:hover .member-image {
+  box-shadow: 0 20px 40px rgba(44, 62, 80, 0.25);
+}
+
+.team-member:hover .member-image img {
+  transform: scale(1.05);
 }
 
 .member-image {
@@ -3159,23 +3173,32 @@ p {
   height: 200px;
   border-radius: var(--radius-full);
   overflow: hidden;
-  margin: 0 auto var(--spacing-md);
+  margin: 0 auto var(--spacing-lg);
+  box-shadow: 0 10px 30px rgba(44, 62, 80, 0.15);
+  transition: box-shadow 0.3s ease;
 }
 
 .member-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
 .member-name {
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: var(--spacing-sm);
+  color: var(--color-gray-900);
+  letter-spacing: 0.5px;
 }
 
 .member-role {
   color: var(--color-gray-500);
   font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Contact Page */
@@ -8855,6 +8878,31 @@ body {
 }
 .footer-v2-whatsapp:hover {
   background: rgba(37, 211, 102, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Footer Social Links */
+.footer-v2-social {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.footer-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-gray-900);
+  color: var(--color-white);
+  transition: all var(--transition-fast);
+}
+
+.footer-social-link:hover {
+  background: var(--color-beige);
+  color: var(--color-black);
   transform: translateY(-2px);
 }
 

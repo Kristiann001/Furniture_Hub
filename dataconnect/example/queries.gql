@@ -1,0 +1,57 @@
+query AllProducts @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public as it only fetches product data.") {
+  products {
+    id
+    name
+    description
+    price
+    imageUrl
+  }
+}
+
+query ProductDetails($productId: UUID!) @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public as it only fetches product details.") {
+  product(id: $productId) {
+    id
+    name
+    description
+    price
+    stock
+    category
+    material
+    dimensions
+    weight
+    imageUrl
+    seller {
+      displayName
+      email
+    }
+  }
+}
+
+mutation AddProductToCart($productId: UUID!, $quantity: Int!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users as it relates to their cart.") {
+  cartItem_insert(data: {
+    productId: $productId,
+    quantity: $quantity,
+    cart: {
+      customerId_expr: "auth.uid"
+    }
+  }) {
+    id
+  }
+}
+
+mutation RegisterUser($displayName: String!, $email: String!, $password: String!) @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public as it allows new user registrations.") {
+  user_insert(data: {
+    displayName: $displayName,
+    email: $email,
+    # In a real application, you would handle password hashing and security
+    # in a more robust way, likely involving Firebase Authentication's
+    # user creation methods rather than storing passwords directly here.
+    # For demonstration purposes, we are including a placeholder for a password.
+    # This is not recommended for production.
+    # For a real application, you would use Firebase Authentication
+    # to create users securely.
+    createdAt_expr: "request.time"
+  }) {
+    id
+  }
+}

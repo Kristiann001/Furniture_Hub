@@ -55,28 +55,28 @@ const About = () => {
 
   const team = [
     {
-      name: "John Mwangi",
+      name: "Fredrick Simiyu",
       role: "Founder & CEO",
       image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+        "https://ui-avatars.com/api/?name=Fredrick+Simiyu&background=2C3E50&color=fff&size=400&font-size=0.4&bold=true",
     },
     {
-      name: "Sarah Kamau",
-      role: "Creative Director",
-      image:
-        "https://images.unsplash.com/photo-1494790108755-2616b332c5cd?w=400",
-    },
-    {
-      name: "David Ochieng",
+      name: "Joel Kangu",
       role: "Operations Manager",
       image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400",
+        "https://ui-avatars.com/api/?name=Joel+Kangu&background=2C3E50&color=fff&size=400&font-size=0.4&bold=true",
     },
     {
-      name: "Grace Wanjiru",
+      name: "Kristiane",
+      role: "Technical Manager",
+      image:
+        "https://ui-avatars.com/api/?name=Kristiane&background=2C3E50&color=fff&size=400&font-size=0.4&bold=true",
+    },
+    {
+      name: "Doris Ogisa",
       role: "Customer Experience Lead",
       image:
-        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400",
+        "https://ui-avatars.com/api/?name=Doris+Ogisa&background=2C3E50&color=fff&size=400&font-size=0.4&bold=true",
     },
   ];
 

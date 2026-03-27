@@ -2,7 +2,7 @@
 // FIREBASE CONFIGURATION — Furniture Hub Kenya
 // ============================================
 // Credentials are loaded from .env (VITE_FIREBASE_* variables).
-// Project: furniturehub-dc031
+// Project: furniturehub-61084
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
