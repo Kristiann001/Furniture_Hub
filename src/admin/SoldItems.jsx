@@ -174,14 +174,24 @@ const SoldItems = () => {
                     {p.soldNote || "—"}
                   </td>
                   <td>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => handleMarkAvailable(p)}
-                      disabled={processingId === p.id}
-                      style={{ padding: "6px 12px", fontSize: 14 }}
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "6px 12px",
+                        background: "#fef3c7",
+                        color: "#92400e",
+                        borderRadius: "8px",
+                        fontSize: "13px",
+                        fontWeight: "600"
+                      }}
                     >
-                      {processingId === p.id ? "Updating..." : "Mark Available"}
-                    </button>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Sold
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -196,52 +206,6 @@ const SoldItems = () => {
           </table>
         )}
       </div>
-
-      {/* ── Confirm Restore Modal ─────────────────────── */}
-      {availableConfirm && (
-        <div
-          className="admin-modal-backdrop"
-          onClick={() => setAvailableConfirm(null)}
-        >
-          <div
-            className="admin-modal admin-confirm-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              className="admin-confirm-icon"
-              style={{ fontSize: 40, marginBottom: 16 }}
-            >
-              ♻️
-            </div>
-            <h3>Restore to Stock?</h3>
-            <p>
-              Are you sure you want to mark <strong>{availableConfirm.name}</strong> as available?
-              It will be moved back to the main Products list.
-            </p>
-            <div className="admin-confirm-actions">
-              <button
-                className="btn btn-secondary"
-                onClick={() => setAvailableConfirm(null)}
-                disabled={processingId}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleMarkAvailable}
-                disabled={processingId}
-                style={{
-                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                  border: "none",
-                  color: "#fff",
-                }}
-              >
-                {processingId ? <span className="btn-spinner" /> : "Restore Product"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

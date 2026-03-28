@@ -66,17 +66,22 @@ export const fetchSoldProducts = async () => {
   try {
     const q = query(
       collection(db, PRODUCTS_COLLECTION),
-      where("status", "==", "sold")
+      orderBy("createdAt", "desc")
     );
     const snapshot = await getDocs(q);
     const products = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-    // Sort locally to avoid requiring a composite index in Firestore
-    products.sort((a, b) => {
+    
+    // Filter for sold items exactly like AdminDashboard
+    const sold = products.filter((p) => p.status === "sold" || p.status === "Sold");
+    
+    // Sort sold items by soldAt descending
+    sold.sort((a, b) => {
       const timeA = a.soldAt?.toMillis ? a.soldAt.toMillis() : 0;
       const timeB = b.soldAt?.toMillis ? b.soldAt.toMillis() : 0;
       return timeB - timeA;
     });
-    return products;
+    
+    return sold;
   } catch (error) {
     console.error("Error fetching sold products:", error);
     throw error;
