@@ -13662,3 +13662,77 @@ body {
   color: #f0eae0;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+
+/* =============================================================
+   MOBILE DRAWER ADMIN & LOGOUT BUTTONS
+   ============================================================= */
+.drawer-admin-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+  color: #fff;
+  border-radius: 14px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.drawer-admin-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.drawer-admin-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin-right: 12px;
+  color: #fcd34d; /* Amber gold accent for premium feel */
+}
+
+.drawer-admin-btn span:not(.drawer-admin-arrow) {
+  flex: 1;
+  text-align: left;
+}
+
+.drawer-admin-arrow {
+  opacity: 0.5;
+  font-size: 14px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.drawer-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #ef4444;
+  border: 1.5px solid #fee2e2;
+  border-radius: 14px;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .drawer-admin-btn {
+  background: linear-gradient(135deg, #2a2520 0%, #1a1612 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .drawer-logout-btn {
+  border-color: #451a1a;
+  color: #fca5a5;
+}
