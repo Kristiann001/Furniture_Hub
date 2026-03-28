@@ -1113,7 +1113,7 @@ p {
 .breadcrumb {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 8px;
   font-size: 14px;
   color: var(--color-gray-500);
   margin-bottom: var(--spacing-lg);
@@ -1133,6 +1133,7 @@ p {
 
 .product-detail {
   padding: var(--spacing-3xl) 0;
+  scroll-behavior: smooth;
 }
 
 .product-detail-grid {
@@ -1168,9 +1169,17 @@ p {
 }
 
 .thumbnail-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
   gap: var(--spacing-sm);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.thumbnail-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .thumbnail {
@@ -1180,6 +1189,10 @@ p {
   cursor: pointer;
   border: 2px solid transparent;
   transition: border-color var(--transition-fast);
+  scroll-snap-align: start;
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
 }
 
 .thumbnail.active,
@@ -1191,6 +1204,12 @@ p {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: scale(1.1);
+  transition: transform var(--transition-slow);
+}
+
+.thumbnail:hover img {
+  transform: scale(1);
 }
 
 .product-detail-info {
@@ -2349,8 +2368,13 @@ p {
   }
 
   .breadcrumb {
-    font-size: 12px;
-    margin-bottom: var(--spacing-sm);
+    font-size: 13px;
+    gap: 6px;
+  }
+  
+  .page-header-nav {
+    gap: 12px;
+    margin-bottom: 12px;
   }
 
   .page-title {
@@ -8118,6 +8142,36 @@ body {
   /* ── Product detail mobile layout ── */
   .product-detail {
     padding: var(--spacing-xl) 0;
+    /* Prevent the browser from stealing scroll momentum */
+    overscroll-behavior-y: none;
+  }
+  /* Disable sticky gallery on mobile — it fights vertical scrolling */
+  .product-gallery {
+    position: static;
+    top: unset;
+  }
+  /* Breadcrumb nav row: scrollable + nicely padded */
+  .detail-nav-row {
+    display: flex;
+    align-items: center;   /* keeps Back btn + breadcrumb on same baseline */
+    padding: 0 var(--spacing-md);
+    margin-bottom: 20px;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .detail-nav-row::-webkit-scrollbar { display: none; }
+  /* Back button must never shrink so breadcrumb stays pinned to its right */
+  .detail-nav-row .page-back-btn {
+    flex-shrink: 0;
+  }
+  .breadcrumb {
+    font-size: 13px;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-bottom: 0;      /* remove any bottom margin that could shift it */
   }
   .product-detail-grid {
     flex-direction: column;
@@ -8126,6 +8180,18 @@ body {
   .detail-image-wrap {
     max-width: 100%;
     padding: 0 var(--spacing-sm);
+  }
+  /* Main gallery image: starts zoomed in, tapping zooms out */
+  .main-image {
+    cursor: zoom-out;
+  }
+  .main-image:active img,
+  .main-image:focus-within img {
+    transform: scale(1); /* zoom out on tap */
+  }
+  /* Thumbnail images: same tap-to-zoom-out effect */
+  .thumbnail:active img {
+    transform: scale(1);
   }
   .product-detail-info {
     padding: 0 var(--spacing-md);
@@ -8144,9 +8210,6 @@ body {
     font-size: 15px;
     line-height: 1.7;
     color: var(--color-gray-600);
-  }
-  .main-image:active img {
-    transform: scale(1); /* Ensure tap-to-zoom-out functionality on mobile */
   }
 
   /* ── Banner / CTA section ── */
@@ -13726,6 +13789,10 @@ body {
 
 .page-header-nav .breadcrumb {
   margin-bottom: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Product detail layout — back + breadcrumb */
@@ -13733,8 +13800,16 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
+  margin-bottom: 24px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 0;
+  scrollbar-width: none;
+}
+
+.detail-nav-row::-webkit-scrollbar {
+  display: none;
 }
 
 /* dark mode back button */

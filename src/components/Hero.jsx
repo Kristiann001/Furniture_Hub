@@ -57,7 +57,7 @@ const Hero = () => {
             <span className="chip-label">Products</span>
           </div>
           <div className="hero-v2-chip hero-v2-chip--br">
-            <span className="chip-num">9+ yrs</span>
+            <span className="chip-num">3 yrs</span>
             <span className="chip-label">Experience</span>
           </div>
         </div>
