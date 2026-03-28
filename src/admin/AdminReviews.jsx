@@ -284,7 +284,6 @@ const AdminReviews = () => {
             onClick={() => setFilter(tab.key)}
           >
             {tab.label}
-            <span className="rev-filter-count">{tab.count}</span>
           </button>
         ))}
       </div>
