@@ -6799,82 +6799,91 @@ img {
 
 @media (max-width: 480px) {
   .admin-content {
-    padding: 16px 16px 32px 16px;
+    padding: 24px 20px 40px 20px;
   }
 
   .admin-page-title {
-    font-size: 24px;
+    font-size: 26px;
+    margin-bottom: 6px;
   }
 
   .admin-page-sub {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .admin-stats-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
   }
 
   .admin-stat-card {
-    padding: 12px;
+    padding: 20px;
+    border-radius: var(--radius-2xl);
   }
 
   .admin-stat-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
   }
 
   .admin-stat-value {
-    font-size: 20px;
+    font-size: 24px;
+    margin-bottom: 4px;
   }
 
   .admin-stat-label {
-    font-size: 11px;
+    font-size: 13px;
+    opacity: 0.8;
   }
 
   .admin-quick-stat {
-    padding: 12px;
+    padding: 16px;
   }
 
   .admin-quick-stat-value {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .admin-action-card {
-    padding: 10px 14px;
-    gap: 12px;
+    padding: 16px 20px;
+    gap: 16px;
+    border-radius: var(--radius-xl);
   }
 
   .admin-action-icon {
-    font-size: 20px;
-    width: 36px;
-    height: 36px;
+    font-size: 24px;
+    width: 44px;
+    height: 44px;
   }
 
   .admin-action-title {
-    font-size: 13px;
+    font-size: 15px;
+    margin-bottom: 2px;
   }
 
   .admin-action-desc {
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .admin-mobile-card {
-    padding: 10px;
+    padding: 20px;
+    border-radius: var(--radius-2xl);
+    margin-bottom: 16px;
   }
 
   .admin-mobile-card-img {
-    width: 45px;
-    height: 45px;
+    width: 60px;
+    height: 60px;
   }
 
   .admin-mobile-card-title {
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .admin-mobile-detail-row {
-    font-size: 11px;
+    font-size: 13px;
+    padding: 4px 0;
   }
 
   .admin-category-badge,
@@ -13735,4 +13744,179 @@ body {
 [data-theme="dark"] .drawer-logout-btn {
   border-color: #451a1a;
   color: #fca5a5;
+}
+
+/* ==========================================================================
+   ADMIN BUTTONS — MOBILE TOUCH POLISH
+   ========================================================================== */
+@media (max-width: 768px) {
+  .admin-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 10px;
+    margin-right: 8px; /* Breathing room if horizontally stacked */
+    margin-bottom: 8px; /* Breathing room if wrapped */
+  }
+
+  .admin-action-btns {
+    gap: 12px;
+    margin-top: 8px;
+  }
+}
+
+/* ==========================================================================
+   PRODUCT DIMENSIONS — PREMIUM UI
+   ========================================================================== */
+.product-dimensions {
+  margin: var(--spacing-2xl) 0;
+  padding: var(--spacing-2xl);
+  background: var(--color-white);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--color-gray-200);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.dim-heading {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-black);
+  margin-bottom: var(--spacing-md);
+  letter-spacing: -0.01em;
+}
+
+.dim-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-off-white);
+  border: 1px solid var(--color-gray-200);
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-gray-800);
+  margin-bottom: var(--spacing-xl);
+}
+
+.dim-table {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.dim-row {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-off-white);
+  padding: 16px 20px;
+  border-radius: var(--radius-xl);
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.dim-row:hover {
+  background: var(--color-white);
+  border-color: var(--color-gray-200);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.dim-row-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-gray-500);
+  margin-bottom: 6px;
+}
+
+.dim-row-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--color-white);
+  border-radius: 8px;
+  color: var(--color-gray-600);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.dim-row-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 900px) {
+  .product-detail-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .product-dimensions {
+    padding: var(--spacing-xl);
+    margin: var(--spacing-xl) 0;
+  }
+
+  .dim-table {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .dim-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-200);
+  }
+  
+  .dim-row-label {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+  
+  .dim-row-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* --- Dark mode support --- */
+[data-theme="dark"] .product-dimensions {
+  background: rgba(30, 26, 18, 0.6);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .dim-summary-chip {
+  background: rgba(42, 37, 28, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #c4b8a8;
+}
+[data-theme="dark"] .dim-row {
+  background: rgba(20, 18, 14, 0.4);
+  border-color: rgba(255, 255, 255, 0.03);
+}
+[data-theme="dark"] .dim-row:hover {
+  background: rgba(42, 37, 28, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .dim-heading,
+[data-theme="dark"] .dim-row-value {
+  color: #f0eae0;
+}
+[data-theme="dark"] .dim-row-icon {
+  background: rgba(42, 37, 28, 0.8);
+  color: #a89f92;
+  box-shadow: none;
+}
+@media (max-width: 768px) {
+  [data-theme="dark"] .dim-row {
+    background: rgba(30, 26, 18, 0.6);
+  }
 }
