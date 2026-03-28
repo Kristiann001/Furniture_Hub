@@ -8115,13 +8115,38 @@ body {
     max-width: 100%;
   }
 
-  /* ── Product detail ── */
+  /* ── Product detail mobile layout ── */
+  .product-detail {
+    padding: var(--spacing-xl) 0;
+  }
   .product-detail-grid {
     flex-direction: column;
     gap: var(--spacing-xl);
   }
   .detail-image-wrap {
     max-width: 100%;
+    padding: 0 var(--spacing-sm);
+  }
+  .product-detail-info {
+    padding: 0 var(--spacing-md);
+  }
+  .product-detail-name {
+    font-size: 28px;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .product-detail-price {
+    font-size: 26px;
+    margin-bottom: 24px;
+  }
+  .product-description {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-gray-600);
+  }
+  .main-image:active img {
+    transform: scale(1); /* Ensure tap-to-zoom-out functionality on mobile */
   }
 
   /* ── Banner / CTA section ── */
