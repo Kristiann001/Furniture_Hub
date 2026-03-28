@@ -254,14 +254,25 @@ const AdminProducts = () => {
                   <td>
                     <div className="admin-table-product">
                       {p.image ? (
-                        <img
-                          src={p.image}
-                          alt={p.name}
-                          className="admin-table-img"
-                        />
+                        <div className="admin-table-img-wrap">
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            className="admin-table-img"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "flex";
+                            }}
+                          />
+                          <div className="admin-table-img admin-table-img--empty" style={{ display: "none" }}>
+                            📦
+                          </div>
+                        </div>
                       ) : (
-                        <div className="admin-table-img admin-table-img--empty">
-                          📦
+                        <div className="admin-table-img-wrap">
+                          <div className="admin-table-img admin-table-img--empty">
+                            📦
+                          </div>
                         </div>
                       )}
                       <div>
@@ -276,7 +287,21 @@ const AdminProducts = () => {
                   <td style={{ textTransform: "capitalize" }}>
                     {woodTypes[p.woodType] || p.woodType || "—"}
                   </td>
-                  <td className="admin-dim">{p.dimensionSummary || "—"}</td>
+                  <td>
+                    <div className="admin-dim-cell">
+                      {p.dimensionSummary ? (
+                        <span className="admin-dim-tag">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
+                            <path d="M3 9h18M9 21V9" stroke="currentColor" strokeWidth="1.5"/>
+                          </svg>
+                          {p.dimensionSummary}
+                        </span>
+                      ) : (
+                        <span className="admin-dim-empty">—</span>
+                      )}
+                    </div>
+                  </td>
                   <td>
                     <div className="admin-price">{p.price}</div>
                     {p.originalPrice && (
@@ -304,32 +329,41 @@ const AdminProducts = () => {
                     <div className="admin-action-btns">
                       {p.status !== "sold" && (
                         <button
-                          className="btn btn-secondary"
+                          className="admin-btn admin-btn--sold"
                           onClick={() => setSoldConfirm(p)}
                           title="Mark as Sold"
-                          style={{
-                            padding: "4px 8px",
-                            fontSize: "14px",
-                            marginRight: "4px",
-                          }}
                         >
-                          💰 Sold
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                            <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          </svg>
+                          Sold
                         </button>
                       )}
                       <button
-                        className="admin-btn-edit"
+                        className="admin-btn admin-btn--edit"
                         onClick={() => openEdit(p)}
-                        title="Edit"
+                        title="Edit product"
                       >
-                        ✏️
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                        Edit
                       </button>
                       <button
-                        className="admin-btn-delete"
+                        className="admin-btn admin-btn--delete"
                         onClick={() => setDeleteConfirm(p)}
-                        title="Delete"
+                        title="Delete product"
                         disabled={saving}
                       >
-                        🗑️ Delete
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          <path d="M10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" strokeWidth="2"/>
+                        </svg>
+                        Delete
                       </button>
                     </div>
                   </td>
@@ -367,11 +401,18 @@ const AdminProducts = () => {
             className="admin-modal admin-confirm-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="admin-confirm-icon">🗑️</div>
+            <div className="admin-confirm-icon admin-confirm-icon--danger">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" strokeWidth="2"/>
+              </svg>
+            </div>
             <h3>Delete Product?</h3>
             <p>
               Are you sure you want to delete{" "}
-              <strong>{deleteConfirm.name}</strong>? This cannot be undone.
+              <strong>{deleteConfirm.name}</strong>? This action cannot be undone.
             </p>
             <div className="admin-confirm-actions">
               <button
@@ -381,20 +422,20 @@ const AdminProducts = () => {
                 Cancel
               </button>
               <button
-                className="btn admin-btn-delete"
+                className="admin-btn admin-btn--delete admin-btn--md"
                 onClick={() => handleDelete(deleteConfirm.id)}
                 disabled={saving}
               >
                 {saving ? (
-                  <span className="btn-spinner">
-                    <span className="spinner-bin">🗑️</span>
-                  </span>
+                  <span className="admin-btn-spinner" />
                 ) : (
-                  <>
-                    <span className="btn-icon">🗑️</span>
-                    Delete Product
-                  </>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                    <polyline points="3,6 5,6 21,6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
                 )}
+                {saving ? "Deleting…" : "Yes, Delete"}
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { productCategories } from "../data/products";
@@ -7,6 +7,7 @@ import { fetchProducts } from "../firebase/products";
 
 const Products = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState(
     searchParams.get("category") || "all"
   );
@@ -45,6 +46,20 @@ const Products = () => {
     return () => observer.disconnect();
   }, [filteredProducts]);
 
+  // Generate a short description based on product attributes
+  const getProductSummary = (product) => {
+    const parts = [];
+    if (product.woodType) parts.push(`${product.woodType} wood`);
+    if (product.dimensionSummary) parts.push(product.dimensionSummary);
+    if (product.description) {
+      // Truncate long descriptions
+      const desc = product.description.trim();
+      return desc.length > 80 ? desc.slice(0, 78) + "…" : desc;
+    }
+    if (parts.length) return parts.join(" · ");
+    return "Premium quality furniture, crafted with care.";
+  };
+
   return (
     <div className="app">
       <Header />
@@ -52,11 +67,19 @@ const Products = () => {
       {/* Page Header */}
       <section className="page-header">
         <div className="container">
-          <nav className="breadcrumb">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <span>Collections</span>
-          </nav>
+          <div className="page-header-nav">
+            <button className="page-back-btn" onClick={() => navigate(-1)} aria-label="Go back">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Back
+            </button>
+            <nav className="breadcrumb">
+              <Link to="/">Home</Link>
+              <span>/</span>
+              <span>Collections</span>
+            </nav>
+          </div>
           <h1 className="page-title">Our Collections</h1>
         </div>
       </section>
@@ -72,7 +95,9 @@ const Products = () => {
                   ? "Loading products…"
                   : activeCategory === "all"
                   ? `Showing all ${allProducts.length} products`
-                  : `Showing ${filteredProducts.length} products in ${
+                  : `Showing ${filteredProducts.length} ${
+                      filteredProducts.length === 1 ? "product" : "products"
+                    } in ${
                       productCategories.find((c) => c.id === activeCategory)?.name
                     }`}
               </p>
@@ -99,19 +124,17 @@ const Products = () => {
 
           {/* Loading skeleton */}
           {loading ? (
-            <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center", padding: "4rem 0" }}>
+            <div className="products-grid">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: 280,
-                    height: 360,
-                    borderRadius: 12,
-                    background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "shimmer 1.5s infinite",
-                  }}
-                />
+                <div key={i} className="product-card-skeleton">
+                  <div className="product-skeleton-image" />
+                  <div className="product-skeleton-body">
+                    <div className="product-skeleton-line product-skeleton-line--short" />
+                    <div className="product-skeleton-line" />
+                    <div className="product-skeleton-line product-skeleton-line--med" />
+                    <div className="product-skeleton-line product-skeleton-line--price" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
@@ -127,28 +150,45 @@ const Products = () => {
                       {product.badge && (
                         <span className="product-badge">{product.badge}</span>
                       )}
-                      <img src={product.image} alt={product.name} />
+                      <img src={product.image} alt={product.name} loading="lazy" />
+                      <div className="product-image-overlay">
+                        <span className="product-view-btn">View Details</span>
+                      </div>
                     </div>
                     <div className="product-info">
                       <div className="product-category">{product.categoryName || product.category}</div>
                       <h3 className="product-name">{product.name}</h3>
-                      <div className="product-price">
-                        {product.price}
-                        {product.originalPrice && (
-                          <span className="product-price-original">
-                            {product.originalPrice}
-                          </span>
-                        )}
+                      <p className="product-summary">{getProductSummary(product)}</p>
+                      <div className="product-footer">
+                        <div className="product-price-wrap">
+                          <span className="product-price">{product.price}</span>
+                          {product.originalPrice && (
+                            <span className="product-price-original">
+                              {product.originalPrice}
+                            </span>
+                          )}
+                        </div>
+                        <span className="product-cta-arrow">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
                       </div>
                     </div>
                   </Link>
                 </div>
               ))}
               {filteredProducts.length === 0 && !loading && (
-                <div style={{ textAlign: "center", padding: "4rem 0", gridColumn: "1 / -1" }}>
-                  <p style={{ color: "var(--text-muted, #888)", fontSize: "1.1rem" }}>
-                    No products found in this category.
-                  </p>
+                <div className="products-empty">
+                  <div className="products-empty-icon">🪑</div>
+                  <h3>No products found</h3>
+                  <p>No products in this category yet. Check back soon!</p>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setActiveCategory("all")}
+                  >
+                    View All Products
+                  </button>
                 </div>
               )}
             </div>

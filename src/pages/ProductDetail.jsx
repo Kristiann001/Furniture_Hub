@@ -29,11 +29,31 @@ const ProductDetail = () => {
       setProduct(data);
       if (data.colors?.length > 0) setSelectedColor(data.colors[0].name);
 
-      // Load related products (same category)
-      const all = await fetchProducts();
-      setRelatedProducts(
-        all.filter((p) => p.category === data.category && p.id !== data.id).slice(0, 4)
-      );
+      // Load related products — prefer same category, pad with anything else
+      try {
+        const all = await fetchProducts();
+        // Exclude only the current product (show available + don't filter sold strictly)
+        const available = all.filter((p) => p.id !== data.id);
+
+        // Priority 1: same category (exclude sold)
+        const sameCat = available.filter(
+          (p) => p.category === data.category && p.status !== "sold"
+        );
+        // Priority 2: other categories (exclude sold)
+        const otherCat = available
+          .filter((p) => p.category !== data.category && p.status !== "sold")
+          .sort(() => Math.random() - 0.5);
+        // Priority 3: last resort — any product even if sold, for visual completeness
+        const anyOther = available
+          .filter((p) => p.status === "sold")
+          .sort(() => Math.random() - 0.5);
+
+        let pool = [...sameCat, ...otherCat, ...anyOther];
+        setRelatedProducts(pool.slice(0, 4));
+      } catch {
+        // If related products fail, continue without crashing the main product view
+        setRelatedProducts([]);
+      }
     } catch {
       setError("Failed to load product. Please try again.");
     } finally {
@@ -67,6 +87,20 @@ const ProductDetail = () => {
     const link = product.whatsappLink || generateWhatsAppLink(product, 1, selectedColor);
     window.open(link, "_blank");
   };
+
+  // A small back button component
+  const BackButton = () => (
+    <button
+      className="page-back-btn"
+      onClick={() => navigate(-1)}
+      aria-label="Go back"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      Back
+    </button>
+  );
 
   // ─── Loading ────────────────────────────────────────────────────────────
   if (loading) {
@@ -108,6 +142,28 @@ const ProductDetail = () => {
 
   const images = product.images?.length ? product.images : [product.image];
 
+  // Parse dimension data into a labelled array
+  const getDimensionRows = () => {
+    const rows = [];
+    if (product.dimensions && typeof product.dimensions === "object") {
+      const labelMap = {
+        length: { label: "Length", icon: "↔" },
+        width: { label: "Width", icon: "↕" },
+        height: { label: "Height", icon: "↑" },
+        depth: { label: "Depth", icon: "↗" },
+        diameter: { label: "Diameter", icon: "⌀" },
+        seat_height: { label: "Seat Height", icon: "🪑" },
+      };
+      Object.entries(product.dimensions).forEach(([key, value]) => {
+        const meta = labelMap[key] || { label: key.replace(/_/g, " "), icon: "•" };
+        rows.push({ key, ...meta, value });
+      });
+    }
+    return rows;
+  };
+
+  const dimensionRows = getDimensionRows();
+
   return (
     <div className="app">
       <Header />
@@ -115,14 +171,17 @@ const ProductDetail = () => {
       {/* Product Detail Section */}
       <section className="product-detail" style={{ paddingTop: "100px" }}>
         <div className="container">
-          {/* Breadcrumb */}
-          <nav className="breadcrumb" style={{ marginBottom: "var(--spacing-lg)" }}>
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <Link to="/products">Collections</Link>
-            <span>/</span>
-            <span>{product.name}</span>
-          </nav>
+          {/* Breadcrumb + Back */}
+          <div className="detail-nav-row">
+            <BackButton />
+            <nav className="breadcrumb">
+              <Link to="/">Home</Link>
+              <span>/</span>
+              <Link to="/products">Collections</Link>
+              <span>/</span>
+              <span>{product.name}</span>
+            </nav>
+          </div>
 
           <div className="product-detail-grid">
             {/* Product Gallery */}
@@ -162,17 +221,9 @@ const ProductDetail = () => {
               {product.woodType && (
                 <div className="product-options">
                   <div className="option-label">Wood / Material</div>
-                  <div style={{
-                    display: "inline-block",
-                    padding: "8px 18px",
-                    background: "var(--color-off-white)",
-                    borderRadius: "var(--radius-full)",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "var(--color-gray-700)",
-                    marginBottom: "var(--spacing-lg)",
-                  }}>
-                    🪵 {woodTypes[product.woodType] || product.woodType}
+                  <div className="wood-badge">
+                    <span className="wood-badge-icon">🪵</span>
+                    {woodTypes[product.woodType] || product.woodType}
                   </div>
                 </div>
               )}
@@ -197,6 +248,44 @@ const ProductDetail = () => {
                 </div>
               )}
 
+              {/* Dimensions — Improved */}
+              {(product.dimensionSummary || dimensionRows.length > 0) && (
+                <div className="product-dimensions">
+                  <h3 className="dim-heading">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ marginRight: 8, verticalAlign: "middle" }}>
+                      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M3 9h18M9 21V9" stroke="currentColor" strokeWidth="1.5"/>
+                    </svg>
+                    Dimensions
+                  </h3>
+
+                  {/* Summary chip */}
+                  {product.dimensionSummary && (
+                    <div className="dim-summary-chip">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                        <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                      {product.dimensionSummary}
+                    </div>
+                  )}
+
+                  {/* Detailed rows */}
+                  {dimensionRows.length > 0 && (
+                    <div className="dim-table">
+                      {dimensionRows.map(({ key, label, icon, value }) => (
+                        <div key={key} className="dim-row">
+                          <span className="dim-row-label">
+                            <span className="dim-row-icon">{icon}</span>
+                            {label}
+                          </span>
+                          <span className="dim-row-value">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="product-actions">
@@ -212,7 +301,7 @@ const ProductDetail = () => {
               {/* Features */}
               {product.features?.length > 0 && (
                 <div className="product-features">
-                  <h3>Features & Specifications</h3>
+                  <h3>Features &amp; Specifications</h3>
                   <ul className="features-list">
                     {product.features.map((feature, index) => (
                       <li key={index}>{feature}</li>
@@ -220,56 +309,65 @@ const ProductDetail = () => {
                   </ul>
                 </div>
               )}
-
-              {/* Dimensions */}
-              {product.dimensionSummary && (
-                <div className="product-dimensions">
-                  <h3>Dimensions</h3>
-                  <div className="dimensions-grid">
-                    <div className="dimension-item">
-                      <span className="dimension-label">Summary</span>
-                      <span className="dimension-value">{product.dimensionSummary}</span>
-                    </div>
-                    {product.dimensions && Object.entries(product.dimensions).map(([key, value]) => (
-                      <div key={key} className="dimension-item">
-                        <span className="dimension-label">{key}</span>
-                        <span className="dimension-value">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Related Products */}
+      {/* You May Also Like */}
       {relatedProducts.length > 0 && (
         <section className="related-products">
           <div className="container">
             <div className="section-header">
               <div>
                 <h2 className="section-title">You May Also Like</h2>
-                <p className="section-subtitle">More from {product.categoryName || product.category}</p>
+                <p className="section-subtitle">
+                  {relatedProducts.some(p => p.category === product.category)
+                    ? `More from ${product.categoryName || product.category} & beyond`
+                    : "Hand-picked picks from our collection"}
+                </p>
               </div>
+              <Link to="/products" className="btn btn-secondary" style={{ whiteSpace: "nowrap" }}>
+                View All
+              </Link>
             </div>
             <div className="products-grid">
               {relatedProducts.map((rp, index) => (
-                <div key={rp.id} className={`product-card animate-fade-up animate-delay-${index}`}>
+                <div
+                  key={rp.id}
+                  className="product-card"
+                  style={{ animation: `relatedFadeIn 0.5s ease both`, animationDelay: `${index * 0.1}s` }}
+                >
                   <Link to={`/product/${rp.id}`}>
                     <div className="product-image">
                       {rp.badge && <span className="product-badge">{rp.badge}</span>}
-                      <img src={rp.image} alt={rp.name} />
+                      <img src={rp.image} alt={rp.name} loading="lazy" />
+                      <div className="product-image-overlay">
+                        <span className="product-view-btn">View Details</span>
+                      </div>
                     </div>
                     <div className="product-info">
                       <div className="product-category">{rp.categoryName || rp.category}</div>
                       <h3 className="product-name">{rp.name}</h3>
-                      <div className="product-price">
-                        {rp.price}
-                        {rp.originalPrice && (
-                          <span className="product-price-original">{rp.originalPrice}</span>
-                        )}
+                      <p className="product-summary">
+                        {rp.description
+                          ? rp.description.slice(0, 70) + (rp.description.length > 70 ? "…" : "")
+                          : rp.woodType
+                          ? `${woodTypes[rp.woodType] || rp.woodType} · ${rp.dimensionSummary || ""}`
+                          : "Premium quality furniture"}
+                      </p>
+                      <div className="product-footer">
+                        <div className="product-price-wrap">
+                          <span className="product-price">{rp.price}</span>
+                          {rp.originalPrice && (
+                            <span className="product-price-original">{rp.originalPrice}</span>
+                          )}
+                        </div>
+                        <span className="product-cta-arrow">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
                       </div>
                     </div>
                   </Link>

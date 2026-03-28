@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -16,6 +16,7 @@ const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 const OWNER_EMAIL = "fredrick.simiyu99@gmail.com";
 
 const Contact = () => {
+  const navigate = useNavigate();
   const formRef = useRef(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -85,6 +86,18 @@ const Contact = () => {
   return (
     <div className="app">
       <Header />
+
+      {/* Back Navigation */}
+      <div className="page-back-strip">
+        <div className="container">
+          <button className="page-back-btn" onClick={() => navigate(-1)} aria-label="Go back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back
+          </button>
+        </div>
+      </div>
 
       {/* Page Header */}
       <section className="page-header">

@@ -97,7 +97,15 @@ const AdminDashboard = () => {
   const soldProducts   = products.filter((p) => p.status === "sold");
   const categories     = [...new Set(activeProducts.map((p) => p.category))].length;
   const totalValue     = activeProducts.reduce((s, p) => s + (p.priceRaw || 0), 0);
-  const avgValue       = activeProducts.length ? Math.round(totalValue / activeProducts.length) : 0;
+  // Total formatted: sum all price strings if priceRaw is missing
+  const totalPriceNum  = activeProducts.reduce((sum, p) => {
+    if (p.priceRaw) return sum + Number(p.priceRaw);
+    const raw = String(p.price || "").replace(/[^\d]/g, "");
+    return sum + (raw ? Number(raw) : 0);
+  }, 0);
+  const totalDisplay   = totalPriceNum
+    ? `KSh ${totalPriceNum.toLocaleString()}`
+    : loading ? "—" : "—";
 
   const today = new Date().toLocaleDateString("en-KE", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
@@ -155,10 +163,10 @@ const AdminDashboard = () => {
           accent="linear-gradient(135deg,#10b981,#059669)"
         />
         <StatCard
-          icon="📊"
-          label="Avg. Product Value"
-          value={loading ? "—" : `KSh ${avgValue.toLocaleString()}`}
-          sublabel="active listings"
+          icon="💎"
+          label="Total Catalog Value"
+          value={loading ? "—" : totalDisplay}
+          sublabel={`across ${activeProducts.length} active listing${activeProducts.length !== 1 ? "s" : ""}`}
           accent="linear-gradient(135deg,#f59e0b,#d97706)"
         />
         <StatCard

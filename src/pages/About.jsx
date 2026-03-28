@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 const About = () => {
+  const navigate = useNavigate();
   useEffect(() => {
     // Initialize animations
     const animatedElements = document.querySelectorAll(".animate-fade-up");
@@ -67,10 +68,10 @@ const About = () => {
         "https://ui-avatars.com/api/?name=Joel+Kangu&background=2C3E50&color=fff&size=400&font-size=0.4&bold=true",
     },
     {
-      name: "Kristiane",
+      name: "Kristian Koome",
       role: "Technical Manager",
       image:
-        "https://ui-avatars.com/api/?name=Kristiane&background=2C3E50&color=fff&size=400&font-size=0.4&bold=true",
+        "https://ui-avatars.com/api/?name=Kristian+Koome&background=2C3E50&color=fff&size=400&font-size=0.4&bold=true",
     },
     {
       name: "Doris Ogisa",
@@ -83,6 +84,18 @@ const About = () => {
   return (
     <div className="app">
       <Header />
+
+      {/* Back Navigation */}
+      <div className="page-back-strip">
+        <div className="container">
+          <button className="page-back-btn" onClick={() => navigate(-1)} aria-label="Go back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back
+          </button>
+        </div>
+      </div>
 
       {/* About Hero */}
       <section className="about-hero">
